@@ -3,6 +3,7 @@ vendor/
 
 # Ignorar configuraciones locales
 .env
+.log
 
 # Archivos y carpetas innecesarios
 *.log
