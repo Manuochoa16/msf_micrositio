@@ -14,3 +14,6 @@ vendor/
 
 # Archivos de caché
 cache/
+
+#Cloudinary
+config/cloudinary_config.php
