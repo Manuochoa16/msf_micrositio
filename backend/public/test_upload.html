@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Test de Subida de Archivos</title>
+  </head>
+  <body>
+    <h1>Subir un archivo</h1>
+    <form
+      action="upload_handler.php"
+      method="POST"
+      enctype="multipart/form-data"
+    >
+      <label for="file">Selecciona un archivo:</label>
+      <input type="file" name="file" id="file" required />
+      <br /><br />
+      <button type="submit">Subir archivo</button>
+    </form>
+  </body>
+</html>

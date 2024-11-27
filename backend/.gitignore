@@ -1,6 +1,3 @@
-# Ignorar dependencias de Composer
-vendor/
-
 # Ignorar configuraciones locales
 .env
 .log
@@ -14,6 +11,3 @@ vendor/
 
 # Archivos de caché
 cache/
-
-#Cloudinary
-config/cloudinary_config.php
