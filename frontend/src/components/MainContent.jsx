@@ -1,15 +1,15 @@
 const MainContent = () => {
   return (
-    <main className="flex-1 p-6">
-      <h2 className="text-3xl font-bold text-red-600 mb-4">
+    <main className="flex-1 p-6 bg-gray-100">
+      <h2 className="mb-4 text-3xl font-bold text-red-600">
         Manual de Identidad Visual
       </h2>
-      <p className="text-gray-700 mb-6">
+      <p className="mb-6 text-gray-700">
         Este manual contiene las directrices para el uso correcto de la marca.
       </p>
-      <div className="grid grid-cols-2 gap-6">
-        <div className="p-4 bg-white shadow rounded">
-          <h3 className="text-red-600 font-bold">Estándares generales</h3>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="p-4 bg-white rounded shadow">
+          <h3 className="font-bold text-red-600">Estándares generales</h3>
           <ul className="mt-2 text-gray-700">
             <li>Uso del logotipo</li>
             <li>Tipografía</li>
@@ -18,7 +18,7 @@ const MainContent = () => {
             <li>Uso de imágenes y vídeos</li>
           </ul>
         </div>
-        {/* Más tarjetas */}
+        {/* Más tarjetas según sea necesario */}
       </div>
     </main>
   );

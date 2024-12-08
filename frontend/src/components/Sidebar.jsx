@@ -1,42 +1,23 @@
 const Sidebar = () => {
   return (
-    <aside className="w-1/4 bg-white p-4 shadow-md">
-      <ul className="space-y-2">
+    <aside className="w-1/4 p-4 bg-gray-100 shadow-md">
+      <ul className="space-y-4">
         <li>
-          <a
-            href="#introduccion"
-            className="text-red-600 font-bold hover:underline"
-          >
-            Introducción
+          <a href="#seccion1" className="text-red-600 hover:underline">
+            Sección 1
           </a>
         </li>
         <li>
-          <a
-            href="#logotipo"
-            className="text-red-600 font-bold hover:underline"
-          >
-            Logotipo
+          <a href="#seccion2" className="text-red-600 hover:underline">
+            Sección 2
           </a>
         </li>
         <li>
-          <a href="#color" className="text-red-600 font-bold hover:underline">
-            Color
-          </a>
-        </li>
-        <li>
-          <a href="#color" className="text-red-600 font-bold hover:underline">
-            Iconografia
-          </a>
-        </li>
-        <li>
-          <a href="#color" className="text-red-600 font-bold hover:underline">
-            Aplicaciones
+          <a href="#seccion3" className="text-red-600 hover:underline">
+            Sección 3
           </a>
         </li>
       </ul>
-      <button className="mt-4 w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">
-        Descargas
-      </button>
     </aside>
   );
 };
