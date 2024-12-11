@@ -7,7 +7,7 @@ const Navbar = () => {
             href="#introduccion"
             className="font-bold text-gray-800 hover:text-red-600"
           >
-            Uso del logo
+            Estándares generales
           </a>
         </li>
         <li>
@@ -15,7 +15,7 @@ const Navbar = () => {
             href="#logotipo"
             className="font-bold text-gray-800 hover:text-red-600"
           >
-            Tipografía
+            Estilo y formato en RRSS
           </a>
         </li>
         <li>
@@ -23,7 +23,7 @@ const Navbar = () => {
             href="#color"
             className="font-bold text-gray-800 hover:text-red-600"
           >
-            Colores
+            Anuncios
           </a>
         </li>
         <li>
@@ -31,7 +31,7 @@ const Navbar = () => {
             href="#tipografia"
             className="font-bold text-gray-800 hover:text-red-600"
           >
-            Uso de imágenes y videos
+            Piezas gráficas
           </a>
         </li>
         <li>
@@ -39,7 +39,7 @@ const Navbar = () => {
             href="#iconografia"
             className="font-bold text-gray-800 hover:text-red-600"
           >
-            Como filmarse / sacar fotos
+            Archivos editables
           </a>
         </li>
       </ul>

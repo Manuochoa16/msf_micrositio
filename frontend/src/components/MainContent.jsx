@@ -1,6 +1,6 @@
 const MainContent = () => {
   return (
-    <main className="flex-1 p-6 bg-gray-100">
+    <main className="flex-1 p-6 bg-gray-200">
       <h2 className="mb-4 text-3xl font-bold text-red-600">
         Manual de Identidad Visual
       </h2>

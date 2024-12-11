@@ -1,6 +1,6 @@
 const Sidebar = () => {
   return (
-    <aside className="w-1/4 p-4 bg-gray-100 shadow-md">
+    <aside className="w-1/4 p-4 bg-gray-200 shadow-md">
       <ul className="space-y-4">
         <li>
           <a href="#seccion1" className="text-red-600 hover:underline">
