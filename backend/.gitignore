@@ -1,0 +1,13 @@
+# Ignorar configuraciones locales
+.env
+.log
+
+# Archivos y carpetas innecesarios
+*.log
+.idea/
+.vscode/
+.DS_Store
+*.bak
+
+# Archivos de caché
+cache/
