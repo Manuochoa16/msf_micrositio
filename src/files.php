@@ -84,6 +84,4 @@ function getInfoById($id) {
 
     return $result;
 }
-
-
 ?>
