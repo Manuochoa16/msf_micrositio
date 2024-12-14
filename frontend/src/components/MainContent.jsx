@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getInfo } from "../services/dataService";
+import { getInfo, saveInfo } from "../services/dataService"; // Importar función saveInfo
 import InfoList from "./InfoList";
 import InfoForm from "./InfoForm";
 
@@ -14,10 +14,23 @@ const MainContent = () => {
 
   const fetchData = async () => {
     try {
-      const response = await getInfo();
-      setData(response); // Guardar los datos en el estado
+      const response = await getInfo(); // Llama al servicio para obtener la info
+      console.log(response); // Inspecciona que `image` esté presente en cada elemento
+      setData(response);
     } catch (error) {
       console.error("Error al obtener la información:", error);
+    }
+  };
+
+  // Manejar guardado de datos
+  const handleSave = async (formData) => {
+    try {
+      await saveInfo(formData); // Llama al servicio para guardar la información
+      fetchData(); // Recarga los datos después de guardar
+      setSelectedItem(null); // Limpia el formulario
+    } catch (error) {
+      console.error("Error al guardar la información:", error);
+      throw new Error("No se pudo guardar la información."); // Opcional: lanzar error para InfoForm
     }
   };
 
@@ -33,7 +46,7 @@ const MainContent = () => {
       {/* Formulario para guardar/actualizar información */}
       <InfoForm
         selectedItem={selectedItem}
-        onFormSubmit={fetchData}
+        onSave={handleSave} // Conectar la función de guardado
         onCancel={() => setSelectedItem(null)}
       />
 
