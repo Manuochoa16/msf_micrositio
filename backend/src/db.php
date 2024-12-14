@@ -1,16 +1,12 @@
 <?php
-require_once __DIR__ . '/../vendor/autoload.php';
+// Ya no es necesario cargar phpdotenv, ya que las variables de entorno están definidas en Render
 
-$dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '/../');
-$dotenv->load();
-
-
-// Extraer los componentes de la URL
-$host = $_ENV['MYSQL_HOST']; // autorack.proxy.rlwy.net
-$dbname = $_ENV['MYSQL_DATABASE']; // railway
-$username = $_ENV['MYSQL_USER']; // root
-$password = $_ENV['MYSQL_ROOT_PASSWORD']; // fyAHXQKUbPNyXZLwPWjdsbNKfvTEosqU
-$port = $_ENV['MYSQL_PORT']; // 55045
+// Extraer los componentes de la URL directamente desde las variables de entorno
+$host = getenv('MYSQL_HOST'); // autorack.proxy.rlwy.net
+$dbname = getenv('MYSQL_DATABASE'); // railway
+$username = getenv('MYSQL_USER'); // root
+$password = getenv('MYSQL_ROOT_PASSWORD'); // fyAHXQKUbPNyXZLwPWjdsbNKfvTEosqU
+$port = getenv('MYSQL_PORT'); // 55045
 
 try {
     // Crear la conexión a la base de datos
