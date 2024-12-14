@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: msf-backend
+    env: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    buildCommand: ""
+    startCommand: php -S 0.0.0.0:80 -t public
+    region: oregon

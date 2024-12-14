@@ -1,6 +1,7 @@
 # Ignorar configuraciones locales
 .env
 .log
+vendor/
 
 # Archivos y carpetas innecesarios
 *.log
