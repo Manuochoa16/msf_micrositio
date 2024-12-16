@@ -12,6 +12,9 @@ const App = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isRegisterOpen, setIsRegisterOpen] = useState(false);
 
+  // Estado para manejar la sección activa
+  const [currentSection, setCurrentSection] = useState("Estándares generales");
+
   return (
     <div className="flex flex-col min-h-screen">
       {/* Header con botones de inicio de sesión y registro */}
@@ -20,15 +23,16 @@ const App = () => {
         onRegisterClick={() => setIsRegisterOpen(true)}
       />
 
-      {/* Navbar */}
-      <Navbar />
+      {/* Navbar pasa la función para cambiar la sección */}
+      <Navbar onSectionChange={setCurrentSection} />
 
       {/* Contenido principal con Sidebar */}
       <div className="flex flex-1">
         {/* Sidebar */}
         <Sidebar />
-        {/* Main Content */}
-        <MainContent />
+
+        {/* Main Content recibe la sección seleccionada */}
+        <MainContent currentSection={currentSection} />
       </div>
 
       {/* Footer */}

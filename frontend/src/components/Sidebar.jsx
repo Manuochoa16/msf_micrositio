@@ -6,17 +6,17 @@ const Sidebar = () => {
       <ul className="space-y-4">
         <li>
           <a href="#seccion1" className="text-red-600 hover:underline">
-            Sección 1
+            Título 1
           </a>
         </li>
         <li>
           <a href="#seccion2" className="text-red-600 hover:underline">
-            Sección 2
+            Título 2
           </a>
         </li>
         <li>
           <a href="#seccion3" className="text-red-600 hover:underline">
-            Sección 3
+            Título 3
           </a>
         </li>
       </ul>

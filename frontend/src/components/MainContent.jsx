@@ -1,54 +1,67 @@
 import React, { useEffect, useState } from "react";
-import { getInfo, saveInfo } from "../services/dataService"; // Importar función saveInfo
+import { getInfo, saveInfo } from "../services/dataService";
 import InfoList from "./InfoList";
 import InfoForm from "./InfoForm";
 
-const MainContent = () => {
+const MainContent = ({ currentSection }) => {
   const [data, setData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [showForm, setShowForm] = useState(false);
 
-  // Obtener datos al montar el componente
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [currentSection]);
 
   const fetchData = async () => {
     try {
-      const response = await getInfo(); // Llama al servicio para obtener la info
-      console.log(response); // Inspecciona que `image` esté presente en cada elemento
+      const response = await getInfo();
       setData(response);
     } catch (error) {
       console.error("Error al obtener la información:", error);
     }
   };
 
-  // Manejar guardado de datos
   const handleSave = async (formData) => {
     try {
-      await saveInfo(formData); // Llama al servicio para guardar la información
-      fetchData(); // Recarga los datos después de guardar
-      setSelectedItem(null); // Limpia el formulario
+      await saveInfo(formData);
+      fetchData();
+      setSelectedItem(null);
+      setShowForm(false);
     } catch (error) {
       console.error("Error al guardar la información:", error);
-      throw new Error("No se pudo guardar la información."); // Opcional: lanzar error para InfoForm
     }
   };
 
   return (
     <main className="flex-1 p-6 bg-gray-200 rounded-xl">
-      <h2 className="mb-4 text-3xl font-bold text-red-600">
-        Manual de Identidad Visual
-      </h2>
+      {/* Contenedor Flex para título y botón */}
+      <div className="flex items-center justify-between mb-4">
+        <h2 className="text-3xl font-bold text-red-600">{currentSection}</h2>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+        >
+          {showForm ? "Cerrar Formulario" : "Agregar Contenido"}
+        </button>
+      </div>
+
+      {/* Descripción */}
       <p className="mb-6 text-gray-700">
-        Este manual contiene las directrices para el uso correcto de la marca.
+        Aquí puedes agregar o gestionar contenido para la sección "
+        {currentSection}".
       </p>
 
-      {/* Formulario para guardar/actualizar información */}
-      <InfoForm
-        selectedItem={selectedItem}
-        onSave={handleSave} // Conectar la función de guardado
-        onCancel={() => setSelectedItem(null)}
-      />
+      {/* Formulario */}
+      {showForm && (
+        <InfoForm
+          selectedItem={selectedItem}
+          onSave={handleSave}
+          onCancel={() => {
+            setSelectedItem(null);
+            setShowForm(false);
+          }}
+        />
+      )}
 
       {/* Lista de datos */}
       <InfoList data={data} onEdit={(item) => setSelectedItem(item)} />

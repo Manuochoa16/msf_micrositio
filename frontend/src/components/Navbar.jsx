@@ -1,49 +1,49 @@
 import React from "react";
 
-const Navbar = () => {
+const Navbar = ({ onSectionChange }) => {
   return (
     <nav className="py-4 bg-white">
       <div className="flex justify-center">
         <ul className="flex space-x-6">
           <li>
-            <a
-              href="#introduccion"
+            <button
+              onClick={() => onSectionChange("Estándares generales")}
               className="font-bold text-gray-800 hover:text-red-600"
             >
               Estándares generales
-            </a>
+            </button>
           </li>
           <li>
-            <a
-              href="#logotipo"
+            <button
+              onClick={() => onSectionChange("Estilo y formato en RRSS")}
               className="font-bold text-gray-800 hover:text-red-600"
             >
               Estilo y formato en RRSS
-            </a>
+            </button>
           </li>
           <li>
-            <a
-              href="#color"
+            <button
+              onClick={() => onSectionChange("Anuncios")}
               className="font-bold text-gray-800 hover:text-red-600"
             >
               Anuncios
-            </a>
+            </button>
           </li>
           <li>
-            <a
-              href="#tipografia"
+            <button
+              onClick={() => onSectionChange("Piezas gráficas")}
               className="font-bold text-gray-800 hover:text-red-600"
             >
               Piezas gráficas
-            </a>
+            </button>
           </li>
           <li>
-            <a
-              href="#iconografia"
+            <button
+              onClick={() => onSectionChange("Archivos editables")}
               className="font-bold text-gray-800 hover:text-red-600"
             >
               Archivos editables
-            </a>
+            </button>
           </li>
         </ul>
       </div>
