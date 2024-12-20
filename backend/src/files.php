@@ -50,4 +50,18 @@ function getInfo() {
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     return $result ?: ['error' => 'No se encontraron registros.'];
 }
+function getInfoById($id) {
+    global $pdo;
+
+    $stmt = $pdo->prepare("SELECT * FROM sections WHERE id = ?");
+    $stmt->execute([$id]);
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($result) {
+        return $result;
+    } else {
+        throw new Exception('No se encontró información para el ID proporcionado.');
+    }
+}
+
 ?>
