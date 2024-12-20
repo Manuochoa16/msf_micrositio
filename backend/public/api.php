@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $method = $_SERVER['REQUEST_METHOD'];
 $endpoint = $_GET['endpoint'] ?? '';
 
-$recaptchaSecret = 'TU_CLAVE_SECRETA_DE_RECAPTCHA';
+$recaptchaSecret = '6LeDkKEqAAAAAIbOAk2Dl6NC6Tj5hr3q_0_hcB7q';
 
 try {
     switch ($endpoint) {
