@@ -18,8 +18,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 $method = $_SERVER['REQUEST_METHOD'];
 $endpoint = $_GET['endpoint'] ?? '';
 
+// Aquí pondremos la clave secreta del reCAPTCHA
+$recaptchaSecret = 'TU_CLAVE_SECRETA_DE_RECAPTCHA';
+
 try {
     switch ($endpoint) {
+        // Endpoint de login
+        case 'login':
+            if ($method === 'POST') {
+                $data = json_decode(file_get_contents('php://input'), true);
+                
+                if (empty($data['username']) || empty($data['password'])) {
+                    throw new Exception('Los campos username y password son obligatorios.');
+                }
+
+                // Verificar reCAPTCHA
+                $recaptchaResponse = $data['recaptcha'];
+                if (empty($recaptchaResponse)) {
+                    throw new Exception('reCAPTCHA es obligatorio.');
+                }
+                
+                // Verificación del reCAPTCHA
+                $recaptchaVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
+                $recaptchaData = [
+                    'secret' => $recaptchaSecret,
+                    'response' => $recaptchaResponse
+                ];
+
+                $options = [
+                    'http' => [
+                        'method' => 'POST',
+                        'content' => http_build_query($recaptchaData),
+                        'header' => "Content-Type: application/x-www-form-urlencoded\r\n"
+                    ]
+                ];
+                $context = stream_context_create($options);
+                $response = file_get_contents($recaptchaVerifyUrl, false, $context);
+                $result = json_decode($response, true);
+
+                if (!$result['success']) {
+                    throw new Exception('Verificación de reCAPTCHA fallida.');
+                }
+
+                // Login
+                if ($user = loginUser($data['username'], $data['password'])) {
+                    echo json_encode(['message' => 'Login exitoso.', 'user' => $user]);
+                } else {
+                    throw new Exception('Usuario o contraseña incorrectos.');
+                }
+            }
+            break;
+
         case 'register':
             if ($method === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
@@ -34,21 +83,6 @@ try {
             }
             break;
 
-            case 'login':
-                if ($method === 'POST') {
-                    $data = json_decode(file_get_contents('php://input'), true);
-                    if (empty($data['username']) || empty($data['password'])) {
-                        throw new Exception('Los campos username y password son obligatorios.');
-                    }
-                    if ($user = loginUser($data['username'], $data['password'])) {
-                        echo json_encode(['message' => 'Login exitoso.', 'user' => $user]);
-                    } else {
-                        throw new Exception('Usuario o contraseña incorrectos.');
-                    }
-                }
-                break;
-            
-
         case 'getInfo':
             if ($method === 'GET') {
                 $data = getInfo();
@@ -60,15 +94,16 @@ try {
             if ($method === 'POST') {
                 $data = $_POST;
 
-                if (empty($data['title']) || empty($data['subtitle']) || empty($data['description'])) {
-                    throw new Exception('Los campos título, subtítulo y descripción son obligatorios.');
-                }
+                // Los campos título, subtítulo y descripción ya no son obligatorios
+                $title = $data['title'] ?? null;
+                $subtitle = $data['subtitle'] ?? null;
+                $description = $data['description'] ?? null;
 
                 $image = $_FILES['image'] ?? null;
                 $audio = $_FILES['audio'] ?? null;
                 $video = $_FILES['video'] ?? null;
 
-                if (saveInfo($data['title'], $data['subtitle'], $data['description'], $image, $audio, $video)) {
+                if (saveInfo($title, $subtitle, $description, $image, $audio, $video)) {
                     echo json_encode(['message' => 'Información guardada exitosamente.']);
                 } else {
                     throw new Exception('No se pudo guardar la información.');
@@ -80,15 +115,21 @@ try {
             if ($method === 'POST') {
                 $data = $_POST;
 
-                if (empty($data['id']) || empty($data['title']) || empty($data['subtitle']) || empty($data['description'])) {
-                    throw new Exception('Faltan campos obligatorios.');
+                // Verificación de los campos obligatorios
+                if (empty($data['id'])) {
+                    throw new Exception('El campo id es obligatorio.');
                 }
+
+                // Los campos título, subtítulo y descripción ya no son obligatorios
+                $title = $data['title'] ?? null;
+                $subtitle = $data['subtitle'] ?? null;
+                $description = $data['description'] ?? null;
 
                 $image = $_FILES['image'] ?? null;
                 $audio = $_FILES['audio'] ?? null;
                 $video = $_FILES['video'] ?? null;
 
-                if (updateInfo($data['id'], $data['title'], $data['subtitle'], $data['description'], $image, $audio, $video)) {
+                if (updateInfo($data['id'], $title, $subtitle, $description, $image, $audio, $video)) {
                     echo json_encode(['message' => 'Información actualizada exitosamente.']);
                 } else {
                     throw new Exception('No se pudo actualizar la información.');
@@ -124,3 +165,4 @@ try {
 } catch (Exception $e) {
     echo json_encode(['error' => $e->getMessage()]);
 }
+?>
