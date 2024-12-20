@@ -63,5 +63,14 @@ function getInfoById($id) {
         throw new Exception('No se encontró información para el ID proporcionado.');
     }
 }
+function createSection($name) {
+    global $pdo;
+    $stmt = $pdo->prepare("INSERT INTO sections (name) VALUES (?)");
+    if ($stmt->execute([$name])) {
+        return $pdo->lastInsertId(); // Devuelve el ID de la nueva sección
+    }
+    return false; // Fallo en la creación
+}
+
 
 ?>

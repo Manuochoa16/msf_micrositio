@@ -158,6 +158,23 @@ try {
                 }
             }
             break;
+            case 'createSection':
+                if ($method === 'POST') {
+                    $data = json_decode(file_get_contents('php://input'), true);
+            
+                    if (empty($data['name'])) {
+                        throw new Exception('El campo name es obligatorio.');
+                    }
+            
+                    $sectionId = createSection($data['name']);
+                    if ($sectionId) {
+                        echo json_encode(['message' => 'Sección creada exitosamente.', 'section_id' => $sectionId]);
+                    } else {
+                        throw new Exception('No se pudo crear la sección.');
+                    }
+                }
+                break;
+            
 
         default:
             throw new Exception('Endpoint no válido.');
