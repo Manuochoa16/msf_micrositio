@@ -1,54 +1,75 @@
 <?php
-echo "Script de migración ejecutándose...\n";
-require_once __DIR__ . '/src/db.php';
+// Configuración de la base de datos
+$host = 'autorack.proxy.rlwy.net'; // Host público proporcionado por Railway
+$port = '55045'; // Puerto público proporcionado por Railway
+$dbname = 'railway';
+$username = 'root';
+$password = 'fyAHXQKUbPNyXZLwPWjdsbNKfvTEosqU';
+$charset = 'utf8mb4';
 
 try {
-    // Crear la tabla sections
+    // Establecer la conexión PDO
+    $dsn = "mysql:host=$host;port=$port;dbname=$dbname;charset=$charset";
+    $pdo = new PDO($dsn, $username, $password, [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ]);
+
+    echo "Conexión exitosa a la base de datos.\n";
+
+    // Crear tabla sections
     $pdo->exec("CREATE TABLE IF NOT EXISTS sections (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
+        name VARCHAR(255) UNIQUE NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
     )");
-    echo "Tabla 'sections' creada exitosamente.\n";
 
-    // Crear la tabla anchors
-    $pdo->exec("CREATE TABLE IF NOT EXISTS anchors (
+    // Crear tabla titles
+    $pdo->exec("CREATE TABLE IF NOT EXISTS titles (
         id INT AUTO_INCREMENT PRIMARY KEY,
         section_id INT NOT NULL,
-        name VARCHAR(255) NOT NULL,
+        title_text VARCHAR(255) NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         FOREIGN KEY (section_id) REFERENCES sections(id) ON DELETE CASCADE
     )");
-    echo "Tabla 'anchors' creada exitosamente.\n";
 
-    // Crear la tabla contents
-    $pdo->exec("CREATE TABLE IF NOT EXISTS contents (
+    // Crear tabla subtitles
+    $pdo->exec("CREATE TABLE IF NOT EXISTS subtitles (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        anchor_id INT NOT NULL,
-        type ENUM('title', 'subtitle', 'description', 'image', 'audio', 'video') NOT NULL,
-        content TEXT,
-        file_path VARCHAR(255),
+        title_id INT NOT NULL,
+        subtitle_text VARCHAR(255) NOT NULL,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        FOREIGN KEY (anchor_id) REFERENCES anchors(id) ON DELETE CASCADE
+        FOREIGN KEY (title_id) REFERENCES titles(id) ON DELETE CASCADE
     )");
-    echo "Tabla 'contents' creada exitosamente.\n";
 
-    // Crear la tabla media_files
+    // Crear tabla paragraphs
+    $pdo->exec("CREATE TABLE IF NOT EXISTS paragraphs (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        title_id INT NOT NULL,
+        paragraph_text TEXT NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (title_id) REFERENCES titles(id) ON DELETE CASCADE
+    )");
+
+    // Crear tabla media_files
     $pdo->exec("CREATE TABLE IF NOT EXISTS media_files (
         id INT AUTO_INCREMENT PRIMARY KEY,
-        anchor_id INT NOT NULL,
-        file_type ENUM('image', 'audio', 'video') NOT NULL,
+        title_id INT NOT NULL,
+        file_type ENUM('image', 'video', 'audio') NOT NULL,
         file_path VARCHAR(255) NOT NULL,
-        file_size INT NOT NULL,
+        file_size INT,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (anchor_id) REFERENCES anchors(id) ON DELETE CASCADE
+        FOREIGN KEY (title_id) REFERENCES titles(id) ON DELETE CASCADE
     )");
-    echo "Tabla 'media_files' creada exitosamente.\n";
-    
+
+    echo "Tablas creadas exitosamente.\n";
+
 } catch (PDOException $e) {
-    echo "Error al crear las tablas: " . $e->getMessage();
+    die("Error en la conexión: " . $e->getMessage());
 }
 ?>

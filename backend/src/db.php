@@ -1,6 +1,7 @@
 <?php
 // Ya no es necesario cargar phpdotenv, ya que las variables de entorno están definidas en Render
 
+
 // Extraer los componentes de la URL directamente desde las variables de entorno
 $host = getenv('MYSQL_HOST'); // autorack.proxy.rlwy.net
 $dbname = getenv('MYSQL_DATABASE'); // railway
