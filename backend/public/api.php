@@ -157,27 +157,29 @@ try {
                 }
                 break;
     
-            case 'getInfoById':
-                if ($method === 'POST') {
-                    $data = json_decode(file_get_contents('php://input'), true);
-    
-                    if (empty($data['id'])) {
-                        throw new Exception('El campo id es obligatorio.');
+                case 'getInfoById':
+                    if ($method === 'POST') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                
+                        if (empty($data['id'])) {
+                            throw new Exception('El campo id es obligatorio.');
+                        }
+                
+                        $info = getInfoById($data['id']);
+                
+                        if ($info) {
+                            // Conversión de los archivos y su tipo MIME
+                            $info['image_mime'] = $info['image'] ? 'image/jpeg' : null;
+                            $info['audio_mime'] = $info['audio'] ? 'audio/mpeg' : null;
+                            $info['video_mime'] = $info['video'] ? 'video/mp4' : null;
+                
+                            echo json_encode($info);
+                        } else {
+                            throw new Exception('No se encontró información para el ID proporcionado.');
+                        }
                     }
-    
-                    $info = getInfoById($data['id']);
-    
-                    if ($info) {
-                        $info['image_mime'] = $info['image'] ? 'image/jpeg' : null;
-                        $info['audio_mime'] = $info['audio'] ? 'audio/mpeg' : null;
-                        $info['video_mime'] = $info['video'] ? 'video/mp4' : null;
-    
-                        echo json_encode($info);
-                    } else {
-                        throw new Exception('No se encontró información para el ID proporcionado.');
-                    }
-                }
-                break;
+                    break;
+                
     
             case 'createSection':
                 if ($method === 'POST') {

@@ -86,6 +86,49 @@ function createTitle($section_id, $title) {
 
     // Obtener el ID del título insertado
     return $pdo->lastInsertId();
+}// Obtener información por ID
+function getInfoById($id) {
+    global $pdo;
+
+    // Consultar la información de la sección
+    $stmt = $pdo->prepare("SELECT * FROM sections WHERE id = ?");
+    $stmt->execute([$id]);
+    $section = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($section) {
+        // Consultar los títulos de la sección
+        $stmt = $pdo->prepare("SELECT * FROM titles WHERE section_id = ?");
+        $stmt->execute([$id]);
+        $titles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $section['titles'] = $titles;
+
+        // Consultar los subtítulos de cada título
+        foreach ($titles as &$title) {
+            $stmt = $pdo->prepare("SELECT * FROM subtitles WHERE title_id = ?");
+            $stmt->execute([$title['id']]);
+            $subtitles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $title['subtitles'] = $subtitles;
+        }
+
+        // Consultar los párrafos de cada título
+        foreach ($titles as &$title) {
+            $stmt = $pdo->prepare("SELECT * FROM paragraphs WHERE title_id = ?");
+            $stmt->execute([$title['id']]);
+            $paragraphs = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $title['paragraphs'] = $paragraphs;
+        }
+
+        // Consultar los archivos multimedia
+        $stmt = $pdo->prepare("SELECT * FROM media_files WHERE title_id = ?");
+        $stmt->execute([$id]);
+        $mediaFiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $section['media_files'] = $mediaFiles;
+
+        return $section;
+    } else {
+        return null;  // No se encuentra la sección
+    }
 }
+
 
 ?>
