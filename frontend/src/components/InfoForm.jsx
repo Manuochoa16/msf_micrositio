@@ -1,9 +1,9 @@
+// InfoForm.jsx
 import React, { useState } from "react";
 import axios from "axios";
 import { Editor, EditorState, RichUtils, convertToRaw } from "draft-js";
 import "draft-js/dist/Draft.css";
 
-// Definir estilos personalizados para colores
 const customStyleMap = {
   RED: { color: "red" },
   GREEN: { color: "green" },
@@ -11,60 +11,49 @@ const customStyleMap = {
 };
 
 const InfoForm = ({ onSave }) => {
+  const [blocks, setBlocks] = useState([]); // Maneja múltiples bloques dinámicos
   const [title, setTitle] = useState("");
   const [subtitle, setSubtitle] = useState("");
-  const [editorState, setEditorState] = useState(EditorState.createEmpty());
-  const [image, setImage] = useState(null);
-  const [audio, setAudio] = useState(null);
-  const [video, setVideo] = useState(null);
-  const [error, setError] = useState("");
 
-  const currentStyle = editorState.getCurrentInlineStyle();
-
-  const handleEditorChange = (newState) => {
-    setEditorState(newState);
+  const addBlock = (type) => {
+    setBlocks([...blocks, { type, content: "", file: null }]);
   };
 
-  const handleInlineStyle = (style) => {
-    setEditorState(RichUtils.toggleInlineStyle(editorState, style));
+  const handleBlockChange = (index, field, value) => {
+    const updatedBlocks = [...blocks];
+    updatedBlocks[index][field] = value;
+    setBlocks(updatedBlocks);
+  };
+
+  const handleFileUpload = (index, file) => {
+    const updatedBlocks = [...blocks];
+    updatedBlocks[index].file = file;
+    setBlocks(updatedBlocks);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const rawContent = JSON.stringify(
-      convertToRaw(editorState.getCurrentContent())
-    );
-
     const formData = new FormData();
     formData.append("title", title);
     formData.append("subtitle", subtitle);
-    formData.append("description", rawContent);
-    if (image) formData.append("image", image);
-    if (audio) formData.append("audio", audio);
-    if (video) formData.append("video", video);
+    formData.append("blocks", JSON.stringify(blocks));
+
+    blocks.forEach((block, index) => {
+      if (block.file) {
+        formData.append(`file_${index}`, block.file);
+      }
+    });
 
     try {
       const response = await axios.post(
-        "http://localhost/api.php?endpoint=saveInfo",
+        "https://msf-micrositio.onrender.com/api.php?endpoint=saveInfo",
         formData,
         { headers: { "Content-Type": "multipart/form-data" } }
       );
       console.log("Respuesta del servidor:", response.data);
-
-      // Limpiar campos
-      setTitle("");
-      setSubtitle("");
-      setEditorState(EditorState.createEmpty());
-      setImage(null);
-      setAudio(null);
-      setVideo(null);
-      setError("");
     } catch (error) {
       console.error("Error al guardar la información:", error);
-      setError(
-        "No se pudo guardar la información. Por favor, intenta nuevamente."
-      );
     }
   };
 
@@ -94,128 +83,66 @@ const InfoForm = ({ onSave }) => {
       </div>
 
       <div>
-        <label className="block mb-2 font-bold">Descripción:</label>
+        <h3 className="font-bold">Bloques de Contenido:</h3>
+        {blocks.map((block, index) => (
+          <div key={index} className="pb-2 mb-4 border-b">
+            <label className="block font-bold">
+              Tipo de bloque: {block.type}
+            </label>
 
-        {/* Botones de estilo */}
-        <div className="flex mb-2 space-x-2">
-          <button
-            type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handleInlineStyle("BOLD");
-            }}
-            className={`px-2 py-1 rounded hover:bg-gray-400 ${
-              currentStyle.has("BOLD")
-                ? "bg-gray-600 text-white font-bold"
-                : "bg-gray-300"
-            }`}
-          >
-            B
-          </button>
-          <button
-            type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handleInlineStyle("ITALIC");
-            }}
-            className={`px-2 py-1 rounded hover:bg-gray-400 ${
-              currentStyle.has("ITALIC")
-                ? "bg-gray-600 text-white italic"
-                : "bg-gray-300"
-            }`}
-          >
-            I
-          </button>
-          <button
-            type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handleInlineStyle("UNDERLINE");
-            }}
-            className={`px-2 py-1 rounded hover:bg-gray-400 ${
-              currentStyle.has("UNDERLINE")
-                ? "bg-gray-600 text-white underline"
-                : "bg-gray-300"
-            }`}
-          >
-            U
-          </button>
+            {block.type === "text" && (
+              <textarea
+                className="w-full p-2 border rounded"
+                value={block.content}
+                onChange={(e) =>
+                  handleBlockChange(index, "content", e.target.value)
+                }
+              ></textarea>
+            )}
 
-          {/* Botones de colores */}
+            {(block.type === "image" ||
+              block.type === "video" ||
+              block.type === "audio") && (
+              <input
+                type="file"
+                accept={block.type + "/*"}
+                onChange={(e) => handleFileUpload(index, e.target.files[0])}
+              />
+            )}
+          </div>
+        ))}
+
+        <div className="flex space-x-2">
           <button
             type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handleInlineStyle("RED");
-            }}
-            className={`px-2 py-1 text-white rounded bg-red-500 hover:bg-red-600`}
+            onClick={() => addBlock("text")}
+            className="px-4 py-2 text-white bg-blue-500 rounded"
           >
-            Rojo
+            Agregar Texto
           </button>
           <button
             type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handleInlineStyle("GREEN");
-            }}
-            className={`px-2 py-1 text-white rounded bg-green-500 hover:bg-green-600`}
+            onClick={() => addBlock("image")}
+            className="px-4 py-2 text-white bg-green-500 rounded"
           >
-            Verde
+            Agregar Imagen
           </button>
           <button
             type="button"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              handleInlineStyle("BLUE");
-            }}
-            className={`px-2 py-1 text-white rounded bg-blue-500 hover:bg-blue-600`}
+            onClick={() => addBlock("video")}
+            className="px-4 py-2 text-white bg-red-500 rounded"
           >
-            Azul
+            Agregar Video
+          </button>
+          <button
+            type="button"
+            onClick={() => addBlock("audio")}
+            className="px-4 py-2 text-white bg-yellow-500 rounded"
+          >
+            Agregar Audio
           </button>
         </div>
-
-        {/* Editor */}
-        <div className="p-2 bg-gray-100 border rounded">
-          <Editor
-            editorState={editorState}
-            onChange={handleEditorChange}
-            customStyleMap={customStyleMap} // Agregar estilos personalizados
-          />
-        </div>
       </div>
-
-      {/* Campos de archivos */}
-      <div>
-        <label className="block font-bold">Imagen:</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setImage(e.target.files[0])}
-          className="w-full"
-        />
-      </div>
-
-      <div>
-        <label className="block font-bold">Audio:</label>
-        <input
-          type="file"
-          accept="audio/*"
-          onChange={(e) => setAudio(e.target.files[0])}
-          className="w-full"
-        />
-      </div>
-
-      <div>
-        <label className="block font-bold">Video:</label>
-        <input
-          type="file"
-          accept="video/*"
-          onChange={(e) => setVideo(e.target.files[0])}
-          className="w-full"
-        />
-      </div>
-
-      {error && <p className="text-red-500">{error}</p>}
 
       <div className="flex justify-end space-x-2">
         <button
@@ -223,20 +150,6 @@ const InfoForm = ({ onSave }) => {
           className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
         >
           Guardar
-        </button>
-        <button
-          type="button"
-          onClick={() => {
-            setTitle("");
-            setSubtitle("");
-            setEditorState(EditorState.createEmpty());
-            setImage(null);
-            setAudio(null);
-            setVideo(null);
-          }}
-          className="px-4 py-2 text-white bg-gray-400 rounded hover:bg-gray-500"
-        >
-          Cancelar
         </button>
       </div>
     </form>

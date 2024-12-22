@@ -3,7 +3,7 @@ import { getInfo, saveInfo } from "../services/dataService";
 import InfoList from "./InfoList";
 import InfoForm from "./InfoForm";
 
-const MainContent = ({ currentSection }) => {
+const MainContent = ({ currentSection, isAuthenticated }) => {
   const [data, setData] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
   const [showForm, setShowForm] = useState(false);
@@ -34,24 +34,21 @@ const MainContent = ({ currentSection }) => {
 
   return (
     <main className="flex-1 p-6 bg-gray-200 rounded-xl">
-      {/* Contenedor Flex para título y botón */}
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-3xl font-bold text-red-600">{currentSection}</h2>
-        <button
-          onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
-        >
-          {showForm ? "Cerrar Formulario" : "Agregar Contenido"}
-        </button>
+        {isAuthenticated && (
+          <button
+            onClick={() => setShowForm(!showForm)}
+            className="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600"
+          >
+            {showForm ? "Cerrar Formulario" : "Agregar Contenido"}
+          </button>
+        )}
       </div>
-
-      {/* Descripción */}
       <p className="mb-6 text-gray-700">
         Aquí puedes agregar o gestionar contenido para la sección "
         {currentSection}".
       </p>
-
-      {/* Formulario */}
       {showForm && (
         <InfoForm
           selectedItem={selectedItem}
@@ -62,8 +59,6 @@ const MainContent = ({ currentSection }) => {
           }}
         />
       )}
-
-      {/* Lista de datos */}
       <InfoList data={data} onEdit={(item) => setSelectedItem(item)} />
     </main>
   );

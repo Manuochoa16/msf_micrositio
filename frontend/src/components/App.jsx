@@ -6,47 +6,48 @@ import MainContent from "./MainContent";
 import Footer from "./Footer";
 import Modal from "./Modal";
 import Login from "./Login";
-import Register from "./Register";
 
 const App = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
-  const [isRegisterOpen, setIsRegisterOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false); // Nuevo estado
+  const [user, setUser] = useState(null); // Almacena el nombre del usuario
 
-  // Estado para manejar la sección activa
+  const handleLogin = (username) => {
+    setIsAuthenticated(true);
+    setUser(username); // Establecer el nombre del usuario
+    setIsLoginOpen(false);
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUser(null); // Limpiar usuario
+  };
+
   const [currentSection, setCurrentSection] = useState("Estándares generales");
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Header con botones de inicio de sesión y registro */}
       <Header
         onLoginClick={() => setIsLoginOpen(true)}
-        onRegisterClick={() => setIsRegisterOpen(true)}
+        isAuthenticated={isAuthenticated}
+        user={user}
+        onLogout={handleLogout}
       />
-
-      {/* Navbar pasa la función para cambiar la sección */}
       <Navbar onSectionChange={setCurrentSection} />
-
-      {/* Contenido principal con Sidebar */}
       <div className="flex flex-1">
-        {/* Sidebar */}
         <Sidebar />
-
-        {/* Main Content recibe la sección seleccionada */}
-        <MainContent currentSection={currentSection} />
+        <MainContent
+          currentSection={currentSection}
+          isAuthenticated={isAuthenticated}
+        />
       </div>
-
-      {/* Footer */}
       <Footer />
-
-      {/* Modales */}
       {isLoginOpen && (
         <Modal isOpen={isLoginOpen} onClose={() => setIsLoginOpen(false)}>
-          <Login onClose={() => setIsLoginOpen(false)} />
-        </Modal>
-      )}
-      {isRegisterOpen && (
-        <Modal isOpen={isRegisterOpen} onClose={() => setIsRegisterOpen(false)}>
-          <Register onClose={() => setIsRegisterOpen(false)} />
+          <Login
+            onLogin={(username) => handleLogin(username)}
+            onClose={() => setIsLoginOpen(false)}
+          />
         </Modal>
       )}
     </div>

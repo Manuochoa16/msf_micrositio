@@ -3,19 +3,31 @@ import axios from "axios";
 import PasswordInput from "./PasswordInput";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
+import ReCAPTCHA from "react-google-recaptcha"; // Importar el componente de reCAPTCHA
 
 const Login = ({ onClose }) => {
   const [loginUsername, setLoginUsername] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
+  const [captchaValue, setCaptchaValue] = useState(null); // Estado para almacenar el valor del reCAPTCHA
   const [message, setMessage] = useState("");
 
+  const handleCaptchaChange = (value) => {
+    setCaptchaValue(value); // Actualizar el estado cuando el usuario completa el reCAPTCHA
+  };
+
   const handleLogin = async () => {
+    if (!captchaValue) {
+      setMessage("Por favor, completa el reCAPTCHA.");
+      return;
+    }
+
     try {
       const response = await axios.post(
-        "http://localhost:8000/api.php?endpoint=login",
+        "https://msf-micrositio.onrender.com/api.php?endpoint=login",
         {
           username: loginUsername,
           password: loginPassword,
+          recaptcha: captchaValue, // Incluir el valor del reCAPTCHA en la solicitud
         }
       );
       if (response.data.message) {
@@ -55,6 +67,13 @@ const Login = ({ onClose }) => {
           onChange={(e) => setLoginPassword(e.target.value)}
           icon={<FontAwesomeIcon icon={faLock} className="text-gray-500" />}
         />
+
+        {/* Agregar el componente de reCAPTCHA */}
+        <ReCAPTCHA
+          sitekey="6LeDkKEqAAAAABfo1agjTiFQVIenWHpehDSDxm-u"
+          onChange={handleCaptchaChange}
+        />
+
         <button
           type="button"
           onClick={handleLogin}
