@@ -4,7 +4,6 @@ require_once '../src/files.php';
 
 header("Access-Control-Allow-Origin: *");
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: http://localhost:5173'); // Cambia este puerto si tu frontend usa otro
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Credentials: true');
@@ -26,38 +25,35 @@ try {
         case 'login':
             if ($method === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
-                
+
                 if (empty($data['username']) || empty($data['password'])) {
                     throw new Exception('Los campos username y password son obligatorios.');
                 }
 
-                // Verificar reCAPTCHA
-                $recaptchaResponse = $data['recaptcha'];
-                if (empty($recaptchaResponse)) {
-                    throw new Exception('reCAPTCHA es obligatorio.');
-                }
-                
+                // Simular reCAPTCHA exitoso para pruebas
+                // $recaptchaResponse = $data['recaptcha'];
+                // if (empty($recaptchaResponse)) {
+                //     throw new Exception('reCAPTCHA es obligatorio.');
+                // }
                 // Verificación del reCAPTCHA
-                $recaptchaVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
-                $recaptchaData = [
-                    'secret' => $recaptchaSecret,
-                    'response' => $recaptchaResponse
-                ];
-
-                $options = [
-                    'http' => [
-                        'method' => 'POST',
-                        'content' => http_build_query($recaptchaData),
-                        'header' => "Content-Type: application/x-www-form-urlencoded\r\n"
-                    ]
-                ];
-                $context = stream_context_create($options);
-                $response = file_get_contents($recaptchaVerifyUrl, false, $context);
-                $result = json_decode($response, true);
-
-                if (!$result['success']) {
-                    throw new Exception('Verificación de reCAPTCHA fallida.');
-                }
+                // $recaptchaVerifyUrl = "https://www.google.com/recaptcha/api/siteverify";
+                // $recaptchaData = [
+                //     'secret' => $recaptchaSecret,
+                //     'response' => $recaptchaResponse
+                // ];
+                // $options = [
+                //     'http' => [
+                //         'method' => 'POST',
+                //         'content' => http_build_query($recaptchaData),
+                //         'header' => "Content-Type: application/x-www-form-urlencoded\r\n"
+                //     ]
+                // ];
+                // $context = stream_context_create($options);
+                // $response = file_get_contents($recaptchaVerifyUrl, false, $context);
+                // $result = json_decode($response, true);
+                // if (!$result['success']) {
+                //     throw new Exception('Verificación de reCAPTCHA fallida.');
+                // }
 
                 // Login
                 if ($user = loginUser($data['username'], $data['password'])) {
