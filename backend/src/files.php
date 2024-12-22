@@ -67,6 +67,7 @@ function saveFile($file, $type) {
     return $targetFile;
 }
 
+
 // Obtener toda la información
 function getInfo() {
     global $pdo;
