@@ -56,11 +56,17 @@ function saveInfo($name, $title = null, $subtitle = null, $description = null, $
 
 
 function saveFile($file, $type) {
-    $targetDir = "uploads/" . $type . "/";
+    $targetDir = __DIR__ . "/uploads/" . $type . "/";
+    if (!file_exists($targetDir)) {
+        mkdir($targetDir, 0777, true); // Crea el directorio si no existe
+    }
     $targetFile = $targetDir . basename($file["name"]);
-    move_uploaded_file($file["tmp_name"], $targetFile);
+    if (!move_uploaded_file($file["tmp_name"], $targetFile)) {
+        throw new Exception("Error al mover el archivo al destino: $targetFile");
+    }
     return $targetFile;
 }
+
 
 // Obtener toda la información
 function getInfo() {
