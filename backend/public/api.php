@@ -195,6 +195,25 @@ try {
                     }
                 }
                 break;
+                
+                case 'createTitle':
+                    if ($method === 'POST') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                
+                        if (empty($data['title']) || empty($data['section_id'])) {
+                            throw new Exception('El campo "title" y "section_id" son obligatorios.');
+                        }
+                
+                        // Llamar a la función que creará el título
+                        $titleId = createTitle($data['section_id'], $data['title']);
+                        if ($titleId) {
+                            echo json_encode(['message' => 'Título creado exitosamente.', 'title_id' => $titleId]);
+                        } else {
+                            throw new Exception('No se pudo crear el título.');
+                        }
+                    }
+                    break;
+                
     
             default:
                 throw new Exception('Endpoint no válido.');

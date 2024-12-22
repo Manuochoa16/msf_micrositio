@@ -5,44 +5,55 @@ require_once 'db.php';
 function saveInfo($name, $title = null, $subtitle = null, $description = null, $image = null, $audio = null, $video = null) {
     global $pdo;
 
-    // Insertar la sección
-    $stmt = $pdo->prepare("INSERT INTO sections (name) VALUES (?)");
-    $stmt->execute([$name]);  // Usar el nombre recibido
-    $section_id = $pdo->lastInsertId();
+    try {
+        // Insertar la sección
+        $stmt = $pdo->prepare("INSERT INTO sections (name) VALUES (?)");
+        $stmt->execute([$name]);
+        $section_id = $pdo->lastInsertId();
 
-    // Insertar contenido solo si no es null
-    if ($title) {
-        $stmt = $pdo->prepare("INSERT INTO titles (section_id, title_text) VALUES (?, ?)");
-        $stmt->execute([$section_id, $title]);
-    }
-    if ($subtitle) {
-        $stmt = $pdo->prepare("INSERT INTO subtitles (title_id, subtitle_text) VALUES (?, ?)");
-        $stmt->execute([$section_id, $subtitle]);
-    }
-    if ($description) {
-        $stmt = $pdo->prepare("INSERT INTO paragraphs (title_id, paragraph_text) VALUES (?, ?)");
-        $stmt->execute([$section_id, $description]);
-    }
+        // Insertar el título y obtener su ID
+        $title_id = null;
+        if ($title) {
+            $stmt = $pdo->prepare("INSERT INTO titles (section_id, title_text) VALUES (?, ?)");
+            $stmt->execute([$section_id, $title]);
+            $title_id = $pdo->lastInsertId(); // Obtener el ID del título insertado
+        }
 
-    // Procesar los archivos solo si están presentes
-    if ($image) {
-        $imagePath = saveFile($image, 'image');
-        $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_path, file_size) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$section_id, 'image', $imagePath, filesize($image['tmp_name'])]);
-    }
-    if ($audio) {
-        $audioPath = saveFile($audio, 'audio');
-        $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_path, file_size) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$section_id, 'audio', $audioPath, filesize($audio['tmp_name'])]);
-    }
-    if ($video) {
-        $videoPath = saveFile($video, 'video');
-        $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_path, file_size) VALUES (?, ?, ?, ?)");
-        $stmt->execute([$section_id, 'video', $videoPath, filesize($video['tmp_name'])]);
-    }
+        // Insertar el subtítulo solo si hay un título
+        if ($subtitle && $title_id) {
+            $stmt = $pdo->prepare("INSERT INTO subtitles (title_id, subtitle_text) VALUES (?, ?)");
+            $stmt->execute([$title_id, $subtitle]);
+        }
 
-    echo json_encode(['message' => 'Información guardada exitosamente.']);
+        // Insertar descripción si está presente
+        if ($description && $title_id) {
+            $stmt = $pdo->prepare("INSERT INTO paragraphs (title_id, paragraph_text) VALUES (?, ?)");
+            $stmt->execute([$title_id, $description]);
+        }
+
+        // Procesar los archivos solo si están presentes
+        if ($image) {
+            $imagePath = saveFile($image, 'image');
+            $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_path, file_size) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$title_id, 'image', $imagePath, filesize($image['tmp_name'])]);
+        }
+        if ($audio) {
+            $audioPath = saveFile($audio, 'audio');
+            $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_path, file_size) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$title_id, 'audio', $audioPath, filesize($audio['tmp_name'])]);
+        }
+        if ($video) {
+            $videoPath = saveFile($video, 'video');
+            $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_path, file_size) VALUES (?, ?, ?, ?)");
+            $stmt->execute([$title_id, 'video', $videoPath, filesize($video['tmp_name'])]);
+        }
+
+        echo json_encode(['message' => 'Información guardada exitosamente.']);
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
+    }
 }
+
 
 function saveFile($file, $type) {
     $targetDir = "uploads/" . $type . "/";
@@ -66,4 +77,15 @@ function createSection($name) {
     $stmt->execute([$name]);
     return $pdo->lastInsertId();
 }
+function createTitle($section_id, $title) {
+    global $pdo;
+
+    // Insertar el título en la tabla titles
+    $stmt = $pdo->prepare("INSERT INTO titles (section_id, title_text) VALUES (?, ?)");
+    $stmt->execute([$section_id, $title]);
+
+    // Obtener el ID del título insertado
+    return $pdo->lastInsertId();
+}
+
 ?>
