@@ -140,7 +140,7 @@ try {
                         throw new Exception('El campo id es obligatorio.');
                     }
     
-                    // Los campos título, subtítulo y descripción ya no son obligatorios
+
                     $title = $data['title'] ?? null;
                     $subtitle = $data['subtitle'] ?? null;
                     $description = $data['description'] ?? null;
