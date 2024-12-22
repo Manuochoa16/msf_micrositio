@@ -101,12 +101,106 @@ try {
                 }
             }
             break;
-
-        // Otros endpoints...
-        default:
-            throw new Exception('Endpoint no válido.');
+            case 'saveInfo':
+                if ($method === 'POST') {
+                    $data = $_POST;
+            
+                    // Obtener el campo 'name' y verificar que no sea vacío
+                    $name = $data['name'] ?? null;
+                    if (empty($name)) {
+                        throw new Exception('El campo "name" es obligatorio.');
+                    }
+            
+                    // Los campos título, subtítulo y descripción ya no son obligatorios
+                    $title = $data['title'] ?? null;
+                    $subtitle = $data['subtitle'] ?? null;
+                    $description = $data['description'] ?? null;
+            
+                    // Obtener los archivos (si existen)
+                    $image = $_FILES['image'] ?? null;
+                    $audio = $_FILES['audio'] ?? null;
+                    $video = $_FILES['video'] ?? null;
+            
+                    // Llamar a la función saveInfo pasando 'name' también
+                    if (saveInfo($name, $title, $subtitle, $description, $image, $audio, $video)) {
+                        echo json_encode(['message' => 'Información guardada exitosamente.']);
+                    } else {
+                        throw new Exception('No se pudo guardar la información.');
+                    }
+                }
+                break;
+            
+    
+            case 'updateInfo':
+                if ($method === 'POST') {
+                    $data = $_POST;
+    
+                    // Verificación de los campos obligatorios
+                    if (empty($data['id'])) {
+                        throw new Exception('El campo id es obligatorio.');
+                    }
+    
+                    // Los campos título, subtítulo y descripción ya no son obligatorios
+                    $title = $data['title'] ?? null;
+                    $subtitle = $data['subtitle'] ?? null;
+                    $description = $data['description'] ?? null;
+    
+                    $image = $_FILES['image'] ?? null;
+                    $audio = $_FILES['audio'] ?? null;
+                    $video = $_FILES['video'] ?? null;
+    
+                    if (updateInfo($data['id'], $title, $subtitle, $description, $image, $audio, $video)) {
+                        echo json_encode(['message' => 'Información actualizada exitosamente.']);
+                    } else {
+                        throw new Exception('No se pudo actualizar la información.');
+                    }
+                }
+                break;
+    
+            case 'getInfoById':
+                if ($method === 'POST') {
+                    $data = json_decode(file_get_contents('php://input'), true);
+    
+                    if (empty($data['id'])) {
+                        throw new Exception('El campo id es obligatorio.');
+                    }
+    
+                    $info = getInfoById($data['id']);
+    
+                    if ($info) {
+                        $info['image_mime'] = $info['image'] ? 'image/jpeg' : null;
+                        $info['audio_mime'] = $info['audio'] ? 'audio/mpeg' : null;
+                        $info['video_mime'] = $info['video'] ? 'video/mp4' : null;
+    
+                        echo json_encode($info);
+                    } else {
+                        throw new Exception('No se encontró información para el ID proporcionado.');
+                    }
+                }
+                break;
+    
+            case 'createSection':
+                if ($method === 'POST') {
+                    $data = json_decode(file_get_contents('php://input'), true);
+    
+                    if (empty($data['name'])) {
+                        throw new Exception('El campo name es obligatorio.');
+                    }
+    
+                    $sectionId = createSection($data['name']);
+                    if ($sectionId) {
+                        echo json_encode(['message' => 'Sección creada exitosamente.', 'section_id' => $sectionId]);
+                    } else {
+                        throw new Exception('No se pudo crear la sección.');
+                    }
+                }
+                break;
+    
+            default:
+                throw new Exception('Endpoint no válido.');
+        }
+    } catch (Exception $e) {
+        echo json_encode(['error' => $e->getMessage()]);
     }
-} catch (Exception $e) {
-    echo json_encode(['error' => $e->getMessage()]);
-}
+
 ?>

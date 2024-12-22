@@ -2,12 +2,12 @@
 require_once 'db.php';
 
 // Guardar información con archivos binarios
-function saveInfo($title = null, $subtitle = null, $description = null, $image = null, $audio = null, $video = null) {
+function saveInfo($name, $title = null, $subtitle = null, $description = null, $image = null, $audio = null, $video = null) {
     global $pdo;
 
     // Insertar la sección
     $stmt = $pdo->prepare("INSERT INTO sections (name) VALUES (?)");
-    $stmt->execute([null]);  // Usa un valor vacío para el nombre en este caso, o lo que necesites
+    $stmt->execute([$name]);  // Usar el nombre recibido
     $section_id = $pdo->lastInsertId();
 
     // Insertar contenido solo si no es null
