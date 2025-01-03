@@ -33,19 +33,13 @@ function saveInfo($name, $title = null, $subtitle = null, $description = null, $
 
         // Procesar los archivos solo si están presentes
         if ($image) {
-            $imagePath = saveFile($image, 'image');
-            $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_path, file_size) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$title_id, 'image', $imagePath, filesize($image['tmp_name'])]);
+            saveFileToDatabase($title_id, 'image', $image);
         }
         if ($audio) {
-            $audioPath = saveFile($audio, 'audio');
-            $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_path, file_size) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$title_id, 'audio', $audioPath, filesize($audio['tmp_name'])]);
+            saveFileToDatabase($title_id, 'audio', $audio);
         }
         if ($video) {
-            $videoPath = saveFile($video, 'video');
-            $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_path, file_size) VALUES (?, ?, ?, ?)");
-            $stmt->execute([$title_id, 'video', $videoPath, filesize($video['tmp_name'])]);
+            saveFileToDatabase($title_id, 'video', $video);
         }
 
         echo json_encode(['message' => 'Información guardada exitosamente.']);
@@ -54,19 +48,20 @@ function saveInfo($name, $title = null, $subtitle = null, $description = null, $
     }
 }
 
+function saveFileToDatabase($title_id, $type, $file) {
+    global $pdo;
 
-function saveFile($file, $type) {
-    $targetDir = __DIR__ . "/uploads/" . $type . "/";
-    if (!file_exists($targetDir)) {
-        mkdir($targetDir, 0777, true); // Crea el directorio si no existe
+    try {
+        $fileData = file_get_contents($file['tmp_name']);
+        $fileSize = filesize($file['tmp_name']);
+        $fileMime = mime_content_type($file['tmp_name']);
+
+        $stmt = $pdo->prepare("INSERT INTO media_files (title_id, file_type, file_data, file_size, file_mime) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$title_id, $type, $fileData, $fileSize, $fileMime]);
+    } catch (Exception $e) {
+        throw new Exception("Error al guardar el archivo en la base de datos: " . $e->getMessage());
     }
-    $targetFile = $targetDir . basename($file["name"]);
-    if (!move_uploaded_file($file["tmp_name"], $targetFile)) {
-        throw new Exception("Error al mover el archivo al destino: $targetFile");
-    }
-    return $targetFile;
 }
-
 
 // Obtener toda la información
 function getInfo() {
@@ -83,6 +78,7 @@ function createSection($name) {
     $stmt->execute([$name]);
     return $pdo->lastInsertId();
 }
+
 function createTitle($section_id, $title) {
     global $pdo;
 
@@ -92,7 +88,9 @@ function createTitle($section_id, $title) {
 
     // Obtener el ID del título insertado
     return $pdo->lastInsertId();
-}// Obtener información por ID
+}
+
+// Obtener información por ID
 function getInfoById($id) {
     global $pdo;
 
@@ -125,16 +123,17 @@ function getInfoById($id) {
         }
 
         // Consultar los archivos multimedia
-        $stmt = $pdo->prepare("SELECT * FROM media_files WHERE title_id = ?");
-        $stmt->execute([$id]);
-        $mediaFiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        $section['media_files'] = $mediaFiles;
+        foreach ($titles as &$title) {
+            $stmt = $pdo->prepare("SELECT * FROM media_files WHERE title_id = ?");
+            $stmt->execute([$title['id']]);
+            $mediaFiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $title['media_files'] = $mediaFiles;
+        }
 
         return $section;
     } else {
         return null;  // No se encuentra la sección
     }
 }
-
 
 ?>
