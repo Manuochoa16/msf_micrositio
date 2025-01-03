@@ -101,34 +101,36 @@ try {
                 }
             }
             break;
+            
             case 'saveInfo':
                 if ($method === 'POST') {
                     $data = $_POST;
-            
-                    // Obtener el campo 'name' y verificar que no sea vacío
-                    $name = $data['name'] ?? null;
-                    if (empty($name)) {
-                        throw new Exception('El campo "name" es obligatorio.');
+                    
+                    // Obtener el campo 'section_id' para asociarlo correctamente
+                    $sectionId = $data['section_id'] ?? null;
+                    if (empty($sectionId)) {
+                        throw new Exception('El campo "section_id" es obligatorio.');
                     }
             
-                    // Los campos título, subtítulo y descripción ya no son obligatorios
+                    // Otros campos
+                    $name = $data['name'] ?? null;
                     $title = $data['title'] ?? null;
                     $subtitle = $data['subtitle'] ?? null;
                     $description = $data['description'] ?? null;
             
-                    // Obtener los archivos (si existen)
                     $image = $_FILES['image'] ?? null;
                     $audio = $_FILES['audio'] ?? null;
                     $video = $_FILES['video'] ?? null;
             
-                    // Llamar a la función saveInfo pasando 'name' también
-                    if (saveInfo($name, $title, $subtitle, $description, $image, $audio, $video)) {
+                    // Guardar la información, ahora con la sección relacionada
+                    if (saveInfo($sectionId, $name, $title, $subtitle, $description, $image, $audio, $video)) {
                         echo json_encode(['message' => 'Información guardada exitosamente.']);
                     } else {
                         throw new Exception('No se pudo guardar la información.');
                     }
                 }
                 break;
+            
             
     
             case 'updateInfo':

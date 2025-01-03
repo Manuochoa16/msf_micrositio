@@ -2,24 +2,24 @@
 require_once 'db.php';
 
 // Guardar información con archivos binarios
-function saveInfo($name, $title = null, $subtitle = null, $description = null, $image = null, $audio = null, $video = null) {
+function saveInfo($sectionId, $name, $title = null, $subtitle = null, $description = null, $image = null, $audio = null, $video = null) {
     global $pdo;
 
     try {
-        // Insertar la sección
+        // Insertar el nombre de la sección
         $stmt = $pdo->prepare("INSERT INTO sections (name) VALUES (?)");
         $stmt->execute([$name]);
-        $section_id = $pdo->lastInsertId();
-
+        $section_id = $pdo->lastInsertId(); // Usar section_id que viene desde la llamada
+        
         // Insertar el título y obtener su ID
         $title_id = null;
         if ($title) {
             $stmt = $pdo->prepare("INSERT INTO titles (section_id, title_text) VALUES (?, ?)");
-            $stmt->execute([$section_id, $title]);
+            $stmt->execute([$sectionId, $title]); // Usamos el section_id aquí
             $title_id = $pdo->lastInsertId(); // Obtener el ID del título insertado
         }
 
-        // Insertar el subtítulo solo si hay un título
+        // Insertar subtítulos solo si hay un título
         if ($subtitle && $title_id) {
             $stmt = $pdo->prepare("INSERT INTO subtitles (title_id, subtitle_text) VALUES (?, ?)");
             $stmt->execute([$title_id, $subtitle]);
@@ -31,7 +31,7 @@ function saveInfo($name, $title = null, $subtitle = null, $description = null, $
             $stmt->execute([$title_id, $description]);
         }
 
-        // Procesar los archivos solo si están presentes
+        // Guardar archivos si están presentes
         if ($image) {
             saveFileToDatabase($title_id, 'image', $image);
         }
@@ -47,6 +47,7 @@ function saveInfo($name, $title = null, $subtitle = null, $description = null, $
         echo json_encode(['error' => $e->getMessage()]);
     }
 }
+
 
 function saveFileToDatabase($title_id, $type, $file) {
     global $pdo;
