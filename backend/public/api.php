@@ -102,123 +102,216 @@ try {
             }
             break;
             
-            case 'saveInfo':
-                if ($method === 'POST') {
-                    $data = $_POST;
-                    
-                    // Obtener el campo 'section_id' para asociarlo correctamente
-                    $sectionId = $data['section_id'] ?? null;
-                    if (empty($sectionId)) {
-                        throw new Exception('El campo "section_id" es obligatorio.');
-                    }
-            
-                    // Otros campos
-                    $name = $data['name'] ?? null;
-                    $title = $data['title'] ?? null;
-                    $subtitle = $data['subtitle'] ?? null;
-                    $description = $data['description'] ?? null;
-            
-                    $image = $_FILES['image'] ?? null;
-                    $audio = $_FILES['audio'] ?? null;
-                    $video = $_FILES['video'] ?? null;
-            
-                    // Guardar la información, ahora con la sección relacionada
-                    if (saveInfo($sectionId, $name, $title, $subtitle, $description, $image, $audio, $video)) {
-                        echo json_encode(['message' => 'Información guardada exitosamente.']);
-                    } else {
-                        throw new Exception('No se pudo guardar la información.');
-                    }
-                }
-                break;
-            
-            
-    
-            case 'updateInfo':
-                if ($method === 'POST') {
-                    $data = $_POST;
-    
-                    // Verificación de los campos obligatorios
-                    if (empty($data['id'])) {
-                        throw new Exception('El campo id es obligatorio.');
-                    }
-    
-
-                    $title = $data['title'] ?? null;
-                    $subtitle = $data['subtitle'] ?? null;
-                    $description = $data['description'] ?? null;
-    
-                    $image = $_FILES['image'] ?? null;
-                    $audio = $_FILES['audio'] ?? null;
-                    $video = $_FILES['video'] ?? null;
-    
-                    if (updateInfo($data['id'], $title, $subtitle, $description, $image, $audio, $video)) {
-                        echo json_encode(['message' => 'Información actualizada exitosamente.']);
-                    } else {
-                        throw new Exception('No se pudo actualizar la información.');
-                    }
-                }
-                break;
-    
-                case 'getInfoById':
+            switch ($endpoint) {
+                // 1. Crear sección
+                case 'createSection':
                     if ($method === 'POST') {
                         $data = json_decode(file_get_contents('php://input'), true);
-                
-                        if (empty($data['id'])) {
-                            throw new Exception('El campo id es obligatorio.');
+                        if (empty($data['name'])) {
+                            throw new Exception('El campo "name" es obligatorio.');
                         }
-                
-                        $info = getInfoById($data['id']);
-                
-                        if ($info) {
-                            // Conversión de los archivos y su tipo MIME
-                            $info['image_mime'] = $info['image'] ? 'image/jpeg' : null;
-                            $info['audio_mime'] = $info['audio'] ? 'audio/mpeg' : null;
-                            $info['video_mime'] = $info['video'] ? 'video/mp4' : null;
-                
-                            echo json_encode($info);
-                        } else {
-                            throw new Exception('No se encontró información para el ID proporcionado.');
-                        }
+                        $sectionId = createSection($data['name']);
+                        echo json_encode(['message' => 'Sección creada exitosamente.', 'section_id' => $sectionId]);
                     }
                     break;
-                
-    
-            case 'createSection':
-                if ($method === 'POST') {
-                    $data = json_decode(file_get_contents('php://input'), true);
-    
-                    if (empty($data['name'])) {
-                        throw new Exception('El campo name es obligatorio.');
+            
+                // 2. Modificar sección (PUT)
+                case 'updateSection':
+                    if ($method === 'PUT') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                        if (empty($data['section_id']) || empty($data['name'])) {
+                            throw new Exception('El campo "section_id" y "name" son obligatorios.');
+                        }
+                        $updated = updateSection($data['section_id'], $data['name']);
+                        echo json_encode(['message' => $updated ? 'Sección actualizada exitosamente.' : 'No se pudo actualizar la sección.']);
                     }
-    
-                    $sectionId = createSection($data['name']);
-                    if ($sectionId) {
-                        echo json_encode(['message' => 'Sección creada exitosamente.', 'section_id' => $sectionId]);
-                    } else {
-                        throw new Exception('No se pudo crear la sección.');
+                    break;
+            
+                // 3. Obtener información de las secciones
+                case 'getSections':
+                    if ($method === 'GET') {
+                        $sections = getInfo(); // Obtener todas las secciones
+                        echo json_encode($sections);
                     }
-                }
-                break;
-                
+                    break;
+            
+                // 4. Crear título
                 case 'createTitle':
                     if ($method === 'POST') {
                         $data = json_decode(file_get_contents('php://input'), true);
-                
                         if (empty($data['title']) || empty($data['section_id'])) {
                             throw new Exception('El campo "title" y "section_id" son obligatorios.');
                         }
-                
-                        // Llamar a la función que creará el título
                         $titleId = createTitle($data['section_id'], $data['title']);
-                        if ($titleId) {
-                            echo json_encode(['message' => 'Título creado exitosamente.', 'title_id' => $titleId]);
-                        } else {
-                            throw new Exception('No se pudo crear el título.');
-                        }
+                        echo json_encode(['message' => 'Título creado exitosamente.', 'title_id' => $titleId]);
                     }
                     break;
-                
-    
+            
+                // 5. Modificar título
+                case 'updateTitle':
+                    if ($method === 'PUT') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                        if (empty($data['title_id']) || empty($data['title'])) {
+                            throw new Exception('El campo "title_id" y "title" son obligatorios.');
+                        }
+                        $updated = updateTitle($data['title_id'], $data['title']);
+                        echo json_encode(['message' => $updated ? 'Título actualizado exitosamente.' : 'No se pudo actualizar el título.']);
+                    }
+                    break;
+            
+                // 6. Obtener información de los títulos
+                case 'getTitles':
+                    if ($method === 'GET') {
+                        $titles = getTitles();
+                        echo json_encode($titles);
+                    }
+                    break;
+            
+                // 7. Agregar subtítulo
+                case 'addSubtitle':
+                    if ($method === 'POST') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                        if (empty($data['title_id']) || empty($data['subtitle'])) {
+                            throw new Exception('El campo "title_id" y "subtitle" son obligatorios.');
+                        }
+                        $subtitleId = addSubtitle($data['title_id'], $data['subtitle']);
+                        echo json_encode(['message' => 'Subtítulo agregado exitosamente.', 'subtitle_id' => $subtitleId]);
+                    }
+                    break;
+            
+                // 8. Modificar subtítulo
+                case 'updateSubtitle':
+                    if ($method === 'PUT') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                        if (empty($data['subtitle_id']) || empty($data['subtitle'])) {
+                            throw new Exception('El campo "subtitle_id" y "subtitle" son obligatorios.');
+                        }
+                        $updated = updateSubtitle($data['subtitle_id'], $data['subtitle']);
+                        echo json_encode(['message' => $updated ? 'Subtítulo actualizado exitosamente.' : 'No se pudo actualizar el subtítulo.']);
+                    }
+                    break;
+            
+                // 9. Agregar descripción
+                case 'addDescription':
+                    if ($method === 'POST') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                        if (empty($data['title_id']) || empty($data['description'])) {
+                            throw new Exception('El campo "title_id" y "description" son obligatorios.');
+                        }
+                        $descriptionId = addDescription($data['title_id'], $data['description']);
+                        echo json_encode(['message' => 'Descripción agregada exitosamente.', 'description_id' => $descriptionId]);
+                    }
+                    break;
+            
+                // 10. Modificar descripción
+                case 'updateDescription':
+                    if ($method === 'PUT') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                        if (empty($data['description_id']) || empty($data['description'])) {
+                            throw new Exception('El campo "description_id" y "description" son obligatorios.');
+                        }
+                        $updated = updateDescription($data['description_id'], $data['description']);
+                        echo json_encode(['message' => $updated ? 'Descripción actualizada exitosamente.' : 'No se pudo actualizar la descripción.']);
+                    }
+                    break;
+            
+                // 11. Agregar audio
+                case 'addAudio':
+                    if ($method === 'POST') {
+                        $data = $_POST;
+                        if (empty($data['title_id']) || empty($_FILES['audio'])) {
+                            throw new Exception('El campo "title_id" y "audio" son obligatorios.');
+                        }
+                        $audioId = addAudio($data['title_id'], $_FILES['audio']);
+                        echo json_encode(['message' => 'Audio agregado exitosamente.', 'audio_id' => $audioId]);
+                    }
+                    break;
+            
+                // 12. Modificar audio
+                case 'updateAudio':
+                    if ($method === 'PUT') {
+                        $data = $_POST;
+                        if (empty($data['audio_id']) || empty($_FILES['audio'])) {
+                            throw new Exception('El campo "audio_id" y "audio" son obligatorios.');
+                        }
+                        $updated = updateAudio($data['audio_id'], $_FILES['audio']);
+                        echo json_encode(['message' => $updated ? 'Audio actualizado exitosamente.' : 'No se pudo actualizar el audio.']);
+                    }
+                    break;
+            
+                // 13. Agregar imagen
+                case 'addImage':
+                    if ($method === 'POST') {
+                        $data = $_POST;
+                        if (empty($data['title_id']) || empty($_FILES['image'])) {
+                            throw new Exception('El campo "title_id" y "image" son obligatorios.');
+                        }
+                        $imageId = addImage($data['title_id'], $_FILES['image']);
+                        echo json_encode(['message' => 'Imagen agregada exitosamente.', 'image_id' => $imageId]);
+                    }
+                    break;
+            
+                // 14. Modificar imagen
+                case 'updateImage':
+                    if ($method === 'PUT') {
+                        $data = $_POST;
+                        if (empty($data['image_id']) || empty($_FILES['image'])) {
+                            throw new Exception('El campo "image_id" y "image" son obligatorios.');
+                        }
+                        $updated = updateImage($data['image_id'], $_FILES['image']);
+                        echo json_encode(['message' => $updated ? 'Imagen actualizada exitosamente.' : 'No se pudo actualizar la imagen.']);
+                    }
+                    break;
+            
+                // 15. Eliminar imagen
+                case 'deleteImage':
+                    if ($method === 'DELETE') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                        if (empty($data['image_id'])) {
+                            throw new Exception('El campo "image_id" es obligatorio.');
+                        }
+                        $deleted = deleteImage($data['image_id']);
+                        echo json_encode(['message' => $deleted ? 'Imagen eliminada exitosamente.' : 'No se pudo eliminar la imagen.']);
+                    }
+                    break;
+            
+                // 16. Agregar video
+                case 'addVideo':
+                    if ($method === 'POST') {
+                        $data = $_POST;
+                        if (empty($data['title_id']) || empty($_FILES['video'])) {
+                            throw new Exception('El campo "title_id" y "video" son obligatorios.');
+                        }
+                        $videoId = addVideo($data['title_id'], $_FILES['video']);
+                        echo json_encode(['message' => 'Video agregado exitosamente.', 'video_id' => $videoId]);
+                    }
+                    break;
+            
+                // 17. Modificar video
+                case 'updateVideo':
+                    if ($method === 'PUT') {
+                        $data = $_POST;
+                        if (empty($data['video_id']) || empty($_FILES['video'])) {
+                            throw new Exception('El campo "video_id" y "video" son obligatorios.');
+                        }
+                        $updated = updateVideo($data['video_id'], $_FILES['video']);
+                        echo json_encode(['message' => $updated ? 'Video actualizado exitosamente.' : 'No se pudo actualizar el video.']);
+                    }
+                    break;
+            
+                // 18. Eliminar video
+                case 'deleteVideo':
+                    if ($method === 'DELETE') {
+                        $data = json_decode(file_get_contents('php://input'), true);
+                        if (empty($data['video_id'])) {
+                            throw new Exception('El campo "video_id" es obligatorio.');
+                        }
+                        $deleted = deleteVideo($data['video_id']);
+                        echo json_encode(['message' => $deleted ? 'Video eliminado exitosamente.' : 'No se pudo eliminar el video.']);
+                    }
+                    break;
+            
+            
             default:
                 throw new Exception('Endpoint no válido.');
         }
