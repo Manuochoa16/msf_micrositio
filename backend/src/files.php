@@ -170,10 +170,7 @@ function updateSection($id, $newName = null, $is_visible = null) {
         $stmt = $pdo->prepare($query);
         $stmt->execute($values);
     }
-    <?php
-require_once 'db.php';
-
-// Actualizar título
+    // Actualizar título
 function updateTitle($title_id, $title) {
     global $pdo;
     $stmt = $pdo->prepare("UPDATE titles SET title = ? WHERE id = ?");
