@@ -171,10 +171,29 @@ function updateSection($id, $newName = null, $is_visible = null) {
         $stmt->execute($values);
     }
     // Actualizar título
-function updateTitle($title_id, $title) {
+// Actualizar título
+function updateTitle($title_id, $title = null, $is_visible = null) {
     global $pdo;
-    $stmt = $pdo->prepare("UPDATE titles SET title = ? WHERE id = ?");
-    return $stmt->execute([$title, $title_id]);
+
+    $fields = [];
+    $values = [];
+
+    if (!is_null($title)) {
+        $fields[] = "title = ?";
+        $values[] = $title;
+    }
+
+    if (!is_null($is_visible)) {
+        $fields[] = "is_visible = ?";
+        $values[] = $is_visible;
+    }
+
+    if (!empty($fields)) {
+        $values[] = $title_id;
+        $query = "UPDATE titles SET " . implode(", ", $fields) . " WHERE id = ?";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($values);
+    }
 }
 
 // Obtener títulos
@@ -185,69 +204,134 @@ function getTitles() {
 }
 
 // Actualizar subtítulo
-function updateSubtitle($subtitle_id, $subtitle) {
+function updateSubtitle($subtitle_id, $subtitle = null, $is_visible = null) {
     global $pdo;
-    $stmt = $pdo->prepare("UPDATE subtitles SET subtitle = ? WHERE id = ?");
-    return $stmt->execute([$subtitle, $subtitle_id]);
+
+    $fields = [];
+    $values = [];
+
+    if (!is_null($subtitle)) {
+        $fields[] = "subtitle = ?";
+        $values[] = $subtitle;
+    }
+
+    if (!is_null($is_visible)) {
+        $fields[] = "is_visible = ?";
+        $values[] = $is_visible;
+    }
+
+    if (!empty($fields)) {
+        $values[] = $subtitle_id;
+        $query = "UPDATE subtitles SET " . implode(", ", $fields) . " WHERE id = ?";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($values);
+    }
 }
 
 // Actualizar descripción
-function updateDescription($description_id, $description) {
+function updateDescription($description_id, $description = null, $is_visible = null) {
     global $pdo;
-    $stmt = $pdo->prepare("UPDATE descriptions SET description = ? WHERE id = ?");
-    return $stmt->execute([$description, $description_id]);
+
+    $fields = [];
+    $values = [];
+
+    if (!is_null($description)) {
+        $fields[] = "description = ?";
+        $values[] = $description;
+    }
+
+    if (!is_null($is_visible)) {
+        $fields[] = "is_visible = ?";
+        $values[] = $is_visible;
+    }
+
+    if (!empty($fields)) {
+        $values[] = $description_id;
+        $query = "UPDATE descriptions SET " . implode(", ", $fields) . " WHERE id = ?";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($values);
+    }
 }
 
 // Actualizar audio
-function updateAudio($audio_id, $audioFile) {
+function updateAudio($audio_id, $audioData = null, $is_visible = null) {
     global $pdo;
 
-    // Leer contenido del archivo y convertirlo a binario
-    $fileContent = file_get_contents($audioFile['tmp_name']);
-    if ($fileContent === false) {
-        throw new Exception('Error al leer el archivo de audio.');
+    $fields = [];
+    $values = [];
+
+    if (!is_null($audioData)) {
+        $fields[] = "data = ?";
+        $values[] = $audioData;
     }
 
-    // Actualizar referencia en la base de datos
-    $stmt = $pdo->prepare("UPDATE audios SET file_data = ? WHERE id = ?");
-    return $stmt->execute([$fileContent, $audio_id]);
+    if (!is_null($is_visible)) {
+        $fields[] = "is_visible = ?";
+        $values[] = $is_visible;
+    }
+
+    if (!empty($fields)) {
+        $values[] = $audio_id;
+        $query = "UPDATE audios SET " . implode(", ", $fields) . " WHERE id = ?";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($values);
+    }
 }
 
 // Actualizar imagen
-function updateImage($image_id, $imageFile) {
+function updateImage($image_id, $imageData = null, $is_visible = null) {
     global $pdo;
 
-    // Leer contenido del archivo y convertirlo a binario
-    $fileContent = file_get_contents($imageFile['tmp_name']);
-    if ($fileContent === false) {
-        throw new Exception('Error al leer el archivo de imagen.');
+    $fields = [];
+    $values = [];
+
+    if (!is_null($imageData)) {
+        $fields[] = "data = ?";
+        $values[] = $imageData;
     }
 
-    // Actualizar referencia en la base de datos
-    $stmt = $pdo->prepare("UPDATE images SET file_data = ? WHERE id = ?");
-    return $stmt->execute([$fileContent, $image_id]);
+    if (!is_null($is_visible)) {
+        $fields[] = "is_visible = ?";
+        $values[] = $is_visible;
+    }
+
+    if (!empty($fields)) {
+        $values[] = $image_id;
+        $query = "UPDATE images SET " . implode(", ", $fields) . " WHERE id = ?";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($values);
+    }
 }
 
 // Actualizar video
-function updateVideo($video_id, $videoFile) {
+function updateVideo($video_id, $videoData = null, $is_visible = null) {
     global $pdo;
 
-    // Leer contenido del archivo y convertirlo a binario
-    $fileContent = file_get_contents($videoFile['tmp_name']);
-    if ($fileContent === false) {
-        throw new Exception('Error al leer el archivo de video.');
+    $fields = [];
+    $values = [];
+
+    if (!is_null($videoData)) {
+        $fields[] = "data = ?";
+        $values[] = $videoData;
     }
 
-    // Actualizar referencia en la base de datos
-    $stmt = $pdo->prepare("UPDATE videos SET file_data = ? WHERE id = ?");
-    return $stmt->execute([$fileContent, $video_id]);
+    if (!is_null($is_visible)) {
+        $fields[] = "is_visible = ?";
+        $values[] = $is_visible;
+    }
+
+    if (!empty($fields)) {
+        $values[] = $video_id;
+        $query = "UPDATE videos SET " . implode(", ", $fields) . " WHERE id = ?";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($values);
+    }
 }
 
 // Eliminar imagen
 function deleteImage($image_id) {
     global $pdo;
 
-    // Eliminar registro de la base de datos
     $stmt = $pdo->prepare("DELETE FROM images WHERE id = ?");
     return $stmt->execute([$image_id]);
 }
@@ -256,7 +340,6 @@ function deleteImage($image_id) {
 function deleteVideo($video_id) {
     global $pdo;
 
-    // Eliminar registro de la base de datos
     $stmt = $pdo->prepare("DELETE FROM videos WHERE id = ?");
     return $stmt->execute([$video_id]);
 }
