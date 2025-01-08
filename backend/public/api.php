@@ -165,6 +165,11 @@ try {
         // 6. Obtener información de los títulos
         case 'getTitles':
             if ($method === 'GET') {
+                function getTitles() {
+                    global $pdo;
+                    $stmt = $pdo->query("SELECT * FROM titles");
+                    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+                }
                 $titles = getTitles();
                 echo json_encode($titles);
             }
