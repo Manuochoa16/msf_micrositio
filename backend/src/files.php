@@ -170,6 +170,100 @@ function updateSection($id, $newName = null, $is_visible = null) {
         $stmt = $pdo->prepare($query);
         $stmt->execute($values);
     }
+    <?php
+require_once 'db.php';
+
+// Actualizar título
+function updateTitle($title_id, $title) {
+    global $pdo;
+    $stmt = $pdo->prepare("UPDATE titles SET title = ? WHERE id = ?");
+    return $stmt->execute([$title, $title_id]);
+}
+
+// Obtener títulos
+function getTitles() {
+    global $pdo;
+    $stmt = $pdo->query("SELECT * FROM titles");
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+// Actualizar subtítulo
+function updateSubtitle($subtitle_id, $subtitle) {
+    global $pdo;
+    $stmt = $pdo->prepare("UPDATE subtitles SET subtitle = ? WHERE id = ?");
+    return $stmt->execute([$subtitle, $subtitle_id]);
+}
+
+// Actualizar descripción
+function updateDescription($description_id, $description) {
+    global $pdo;
+    $stmt = $pdo->prepare("UPDATE descriptions SET description = ? WHERE id = ?");
+    return $stmt->execute([$description, $description_id]);
+}
+
+// Actualizar audio
+function updateAudio($audio_id, $audioFile) {
+    global $pdo;
+
+    // Leer contenido del archivo y convertirlo a binario
+    $fileContent = file_get_contents($audioFile['tmp_name']);
+    if ($fileContent === false) {
+        throw new Exception('Error al leer el archivo de audio.');
+    }
+
+    // Actualizar referencia en la base de datos
+    $stmt = $pdo->prepare("UPDATE audios SET file_data = ? WHERE id = ?");
+    return $stmt->execute([$fileContent, $audio_id]);
+}
+
+// Actualizar imagen
+function updateImage($image_id, $imageFile) {
+    global $pdo;
+
+    // Leer contenido del archivo y convertirlo a binario
+    $fileContent = file_get_contents($imageFile['tmp_name']);
+    if ($fileContent === false) {
+        throw new Exception('Error al leer el archivo de imagen.');
+    }
+
+    // Actualizar referencia en la base de datos
+    $stmt = $pdo->prepare("UPDATE images SET file_data = ? WHERE id = ?");
+    return $stmt->execute([$fileContent, $image_id]);
+}
+
+// Actualizar video
+function updateVideo($video_id, $videoFile) {
+    global $pdo;
+
+    // Leer contenido del archivo y convertirlo a binario
+    $fileContent = file_get_contents($videoFile['tmp_name']);
+    if ($fileContent === false) {
+        throw new Exception('Error al leer el archivo de video.');
+    }
+
+    // Actualizar referencia en la base de datos
+    $stmt = $pdo->prepare("UPDATE videos SET file_data = ? WHERE id = ?");
+    return $stmt->execute([$fileContent, $video_id]);
+}
+
+// Eliminar imagen
+function deleteImage($image_id) {
+    global $pdo;
+
+    // Eliminar registro de la base de datos
+    $stmt = $pdo->prepare("DELETE FROM images WHERE id = ?");
+    return $stmt->execute([$image_id]);
+}
+
+// Eliminar video
+function deleteVideo($video_id) {
+    global $pdo;
+
+    // Eliminar registro de la base de datos
+    $stmt = $pdo->prepare("DELETE FROM videos WHERE id = ?");
+    return $stmt->execute([$video_id]);
+}
+
 }
 
 ?>
