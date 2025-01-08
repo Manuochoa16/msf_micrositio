@@ -133,7 +133,7 @@ try {
         // 3. Obtener información de las secciones
         case 'getSections':
             if ($method === 'GET') {
-                $sections = getInfo(); // Obtener todas las secciones
+                $sections = getSections(); // Obtener todas las secciones
                 echo json_encode($sections);
             }
             break;
