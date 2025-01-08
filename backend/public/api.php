@@ -29,7 +29,8 @@ try {
                     throw new Exception('Los campos username y password son obligatorios.');
                 }
 
-                // Verificación del reCAPTCHA
+                // Comentado: Verificación del reCAPTCHA
+                /*
                 $recaptchaResponse = $data['recaptcha'];
                 if (empty($recaptchaResponse)) {
                     throw new Exception('reCAPTCHA es obligatorio.');
@@ -52,6 +53,7 @@ try {
                 if (!$result['success']) {
                     throw new Exception('Verificación de reCAPTCHA fallida.');
                 }
+                */
 
                 // Login
                 if ($user = loginUser($data['username'], $data['password'])) {
@@ -70,7 +72,8 @@ try {
                     throw new Exception('Los campos username y password son obligatorios.');
                 }
 
-                // Verificación del reCAPTCHA
+                // Comentado: Verificación del reCAPTCHA
+                /*
                 $recaptchaResponse = $data['recaptcha'];
                 if (empty($recaptchaResponse)) {
                     throw new Exception('reCAPTCHA es obligatorio.');
@@ -93,6 +96,7 @@ try {
                 if (!$result['success']) {
                     throw new Exception('Verificación de reCAPTCHA fallida.');
                 }
+                */
 
                 if (registerUser($data['username'], $data['password'])) {
                     echo json_encode(['message' => 'Usuario registrado exitosamente.']);
