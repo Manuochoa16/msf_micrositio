@@ -136,7 +136,40 @@ function updateVisibility($id, $type, $is_visible) {
         $stmt = $pdo->prepare("UPDATE $table SET is_visible = ? WHERE id = ?");
         $stmt->execute([$is_visible, $id]);
     }
+    
+}
+// Obtener todas las secciones
+function getSections() {
+    global $pdo;
+
+    $stmt = $pdo->prepare("SELECT * FROM sections WHERE is_visible = ?");
+    $stmt->execute([true]);
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
 
+// Actualizar nombre o visibilidad de una sección
+function updateSection($id, $newName = null, $is_visible = null) {
+    global $pdo;
+
+    $fields = [];
+    $values = [];
+
+    if (!is_null($newName)) {
+        $fields[] = "name = ?";
+        $values[] = $newName;
+    }
+
+    if (!is_null($is_visible)) {
+        $fields[] = "is_visible = ?";
+        $values[] = $is_visible;
+    }
+
+    if (!empty($fields)) {
+        $values[] = $id;
+        $query = "UPDATE sections SET " . implode(", ", $fields) . " WHERE id = ?";
+        $stmt = $pdo->prepare($query);
+        $stmt->execute($values);
+    }
+}
 
 ?>
