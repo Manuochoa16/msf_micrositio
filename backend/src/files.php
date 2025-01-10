@@ -33,6 +33,7 @@ function addDescription($title_id, $description) {
     global $pdo;
     $stmt = $pdo->prepare("INSERT INTO paragraphs (title_id, paragraph_text, is_visible) VALUES (?, ?, ?)");
     $stmt->execute([$title_id, $description, true]);
+    return $pdo->lastInsertId();
 }
 
 // Guardar archivo en base de datos (audio, imagen, video)
