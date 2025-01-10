@@ -416,6 +416,38 @@ try {
                     throw new Exception('Método no permitido. Use PUT.');
                 }
                 break;    
+                // Obtener subtítulos, descripciones y archivos de un título
+case 'getTitleDetails':
+    if ($method === 'GET') {
+        if (empty($_GET['title_id'])) {
+            throw new Exception('El campo "title_id" es obligatorio.');
+        }
+
+        $titleId = $_GET['title_id'];
+
+        // Obtener subtítulos
+        $subtitlesQuery = $pdo->prepare("SELECT * FROM subtitles WHERE title_id = ?");
+        $subtitlesQuery->execute([$titleId]);
+        $subtitles = $subtitlesQuery->fetchAll(PDO::FETCH_ASSOC);
+
+        // Obtener descripciones
+        $descriptionsQuery = $pdo->prepare("SELECT * FROM paragraphs WHERE title_id = ?");
+        $descriptionsQuery->execute([$titleId]);
+        $descriptions = $descriptionsQuery->fetchAll(PDO::FETCH_ASSOC);
+
+        // Obtener archivos
+        $filesQuery = $pdo->prepare("SELECT * FROM files WHERE title_id = ?");
+        $filesQuery->execute([$titleId]);
+        $files = $filesQuery->fetchAll(PDO::FETCH_ASSOC);
+
+        echo json_encode([
+            'subtitles' => $subtitles,
+            'descriptions' => $descriptions,
+            'files' => $files
+        ]);
+    }
+    break;
+
 
         default:
             throw new Exception("Endpoint no reconocido.");
