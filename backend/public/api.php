@@ -397,6 +397,25 @@ try {
                 echo json_encode(['message' => $deleted ? 'Video eliminado exitosamente.' : 'No se pudo eliminar el video.']);
             }
             break;
+            case 'updateVisibility':
+                if ($method === 'PUT') {
+                    $data = json_decode(file_get_contents('php://input'), true);
+    
+                    if (empty($data['id']) || empty($data['type']) || !isset($data['is_visible'])) {
+                        throw new Exception('Los campos "id", "type" e "is_visible" son obligatorios.');
+                    }
+    
+                    $id = $data['id'];
+                    $type = $data['type'];
+                    $is_visible = $data['is_visible'] ? 1 : 0;
+    
+                    updateVisibility($id, $type, $is_visible);
+    
+                    echo json_encode(['message' => 'Estado de visibilidad actualizado exitosamente.']);
+                } else {
+                    throw new Exception('Método no permitido. Use PUT.');
+                }
+                break;    
 
         default:
             throw new Exception("Endpoint no reconocido.");

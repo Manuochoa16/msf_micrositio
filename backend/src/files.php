@@ -172,7 +172,7 @@ function updateSection($id, $newName = null, $is_visible = null) {
         $stmt = $pdo->prepare($query);
         $stmt->execute($values);
     }
-    // Actualizar título
+
 // Actualizar título
 function updateTitle($title_id, $title = null, $is_visible = null) {
     global $pdo;
