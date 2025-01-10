@@ -418,38 +418,38 @@ try {
                 break;    
                 // Obtener subtítulos, descripciones y archivos de un título
                 case 'getTitleDetails':
-    if ($method === 'GET') {
-        if (empty($_GET['title_id'])) {
-            throw new Exception('El campo "title_id" es obligatorio.');
-        }
-
-        $titleId = $_GET['title_id'];
-
-        // Obtener subtítulos
-        $subtitlesQuery = $pdo->prepare("SELECT * FROM subtitles WHERE title_id = ?");
-        $subtitlesQuery->execute([$titleId]);
-        $subtitles = $subtitlesQuery->fetchAll(PDO::FETCH_ASSOC);
-
-        // Obtener descripciones
-        $descriptionsQuery = $pdo->prepare("SELECT * FROM paragraphs WHERE title_id = ?");
-        $descriptionsQuery->execute([$titleId]);
-        $descriptions = $descriptionsQuery->fetchAll(PDO::FETCH_ASSOC);
-
-        // Obtener archivos (incluyendo file_data)
-        $filesQuery = $pdo->prepare("SELECT m.id, m.file_type, m.file_size, m.file_mime, m.is_visible, m.file_data 
-                                     FROM media_files m WHERE m.title_id = ?");
-        $filesQuery->execute([$titleId]);
-        $files = $filesQuery->fetchAll(PDO::FETCH_ASSOC);
-
-        echo json_encode([
-            'subtitles' => $subtitles,
-            'descriptions' => $descriptions,
-            'files' => $files
-        ]);
-    }
-    break;
-
-                
+                    case 'getTitleDetails':
+                        if ($method === 'GET') {
+                            if (empty($_GET['title_id'])) {
+                                throw new Exception('El campo "title_id" es obligatorio.');
+                            }
+                    
+                            $titleId = $_GET['title_id'];
+                    
+                            // Obtener subtítulos
+                            $subtitlesQuery = $pdo->prepare("SELECT * FROM subtitles WHERE title_id = ?");
+                            $subtitlesQuery->execute([$titleId]);
+                            $subtitles = $subtitlesQuery->fetchAll(PDO::FETCH_ASSOC);
+                    
+                            // Obtener descripciones
+                            $descriptionsQuery = $pdo->prepare("SELECT * FROM paragraphs WHERE title_id = ?");
+                            $descriptionsQuery->execute([$titleId]);
+                            $descriptions = $descriptionsQuery->fetchAll(PDO::FETCH_ASSOC);
+                    
+                            // Obtener archivos (actualiza el nombre de la tabla y las columnas)
+                            $filesQuery = $pdo->prepare("SELECT m.id, m.file_type, m.file_size, m.file_mime, m.is_visible 
+                                                         FROM media_files m WHERE m.title_id = ?");
+                            $filesQuery->execute([$titleId]);
+                            $files = $filesQuery->fetchAll(PDO::FETCH_ASSOC);
+                    
+                            echo json_encode([
+                                'subtitles' => $subtitles,
+                                'descriptions' => $descriptions,
+                                'files' => $files
+                            ]);
+                        }
+                        break;
+          
 
         default:
             throw new Exception("Endpoint no reconocido.");
