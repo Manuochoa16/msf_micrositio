@@ -219,87 +219,97 @@ try {
                 if (empty($data['subtitle_id']) || empty($data['subtitle'])) {
                     throw new Exception('El campo "subtitle_id" y "subtitle" son obligatorios.');
                 }
-                function updateSubtitle($subtitle_id, $subtitle = null, $is_visible = null) {
+        
+                function updateSubtitle($subtitle_id, $subtitle_text = null, $is_visible = null) {
                     global $pdo;
-                
+        
                     $fields = [];
                     $values = [];
-                
-                    if (!is_null($subtitle)) {
-                        $fields[] = "subtitle = ?";
-                        $values[] = $subtitle;
+        
+                    if (!is_null($subtitle_text)) {
+                        $fields[] = "subtitle_text = ?";
+                        $values[] = $subtitle_text;
                     }
-                
+        
                     if (!is_null($is_visible)) {
                         $fields[] = "is_visible = ?";
                         $values[] = $is_visible;
                     }
-                
+        
                     if (!empty($fields)) {
                         $values[] = $subtitle_id;
                         $query = "UPDATE subtitles SET " . implode(", ", $fields) . " WHERE id = ?";
                         $stmt = $pdo->prepare($query);
                         $stmt->execute($values);
+                        return $stmt->rowCount() > 0; // Devuelve si hubo actualizaciones
                     }
+        
+                    return false;
                 }
-                
+        
                 $updated = updateSubtitle($data['subtitle_id'], $data['subtitle']);
                 echo json_encode(['message' => $updated ? 'Subtítulo actualizado exitosamente.' : 'No se pudo actualizar el subtítulo.']);
             }
             break;
-
-        // 9. Agregar descripción
+        
         case 'addDescription':
             if ($method === 'POST') {
                 $data = json_decode(file_get_contents('php://input'), true);
                 if (empty($data['title_id']) || empty($data['description'])) {
                     throw new Exception('El campo "title_id" y "description" son obligatorios.');
                 }
-                function addDescription($title_id, $description) {
+        
+                function addDescription($title_id, $paragraph_text) {
                     global $pdo;
                     $stmt = $pdo->prepare("INSERT INTO paragraphs (title_id, paragraph_text, is_visible) VALUES (?, ?, ?)");
-                    $stmt->execute([$title_id, $description, true]);
-                    return $pdo->lastInsertId();
+                    $stmt->execute([$title_id, $paragraph_text, true]);
+                    return $pdo->lastInsertId(); // Devuelve el ID recién creado
                 }
+        
                 $descriptionId = addDescription($data['title_id'], $data['description']);
                 echo json_encode(['message' => 'Descripción agregada exitosamente.', 'description_id' => $descriptionId]);
             }
             break;
-
-        // 10. Modificar descripción
+        
         case 'updateDescription':
             if ($method === 'PUT') {
                 $data = json_decode(file_get_contents('php://input'), true);
                 if (empty($data['description_id']) || empty($data['description'])) {
                     throw new Exception('El campo "description_id" y "description" son obligatorios.');
-                }function updateDescription($description_id, $description = null, $is_visible = null) {
+                }
+        
+                function updateDescription($description_id, $paragraph_text = null, $is_visible = null) {
                     global $pdo;
-                
+        
                     $fields = [];
                     $values = [];
-                
-                    if (!is_null($description)) {
-                        $fields[] = "description = ?";
-                        $values[] = $description;
+        
+                    if (!is_null($paragraph_text)) {
+                        $fields[] = "paragraph_text = ?";
+                        $values[] = $paragraph_text;
                     }
-                
+        
                     if (!is_null($is_visible)) {
                         $fields[] = "is_visible = ?";
                         $values[] = $is_visible;
                     }
-                
+        
                     if (!empty($fields)) {
                         $values[] = $description_id;
-                        $query = "UPDATE descriptions SET " . implode(", ", $fields) . " WHERE id = ?";
+                        $query = "UPDATE paragraphs SET " . implode(", ", $fields) . " WHERE id = ?";
                         $stmt = $pdo->prepare($query);
                         $stmt->execute($values);
+                        return $stmt->rowCount() > 0; // Devuelve si hubo actualizaciones
                     }
+        
+                    return false;
                 }
+        
                 $updated = updateDescription($data['description_id'], $data['description']);
                 echo json_encode(['message' => $updated ? 'Descripción actualizada exitosamente.' : 'No se pudo actualizar la descripción.']);
             }
             break;
-
+        
         // 11. Agregar audio
         case 'addAudio':
             if ($method === 'POST') {
