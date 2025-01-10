@@ -257,15 +257,7 @@ try {
                 $data = json_decode(file_get_contents('php://input'), true);
                 if (empty($data['title_id']) || empty($data['description'])) {
                     throw new Exception('El campo "title_id" y "description" son obligatorios.');
-                }
-        
-                function addDescription($title_id, $paragraph_text) {
-                    global $pdo;
-                    $stmt = $pdo->prepare("INSERT INTO paragraphs (title_id, paragraph_text, is_visible) VALUES (?, ?, ?)");
-                    $stmt->execute([$title_id, $paragraph_text, true]);
-                    return $pdo->lastInsertId(); // Devuelve el ID recién creado
-                }
-        
+                }       
                 $descriptionId = addDescription($data['title_id'], $data['description']);
                 echo json_encode(['message' => 'Descripción agregada exitosamente.', 'description_id' => $descriptionId]);
             }
