@@ -435,8 +435,8 @@ try {
                         $descriptionsQuery->execute([$titleId]);
                         $descriptions = $descriptionsQuery->fetchAll(PDO::FETCH_ASSOC);
                 
-                        // Obtener archivos (actualiza el nombre de la tabla y las columnas)
-                        $filesQuery = $pdo->prepare("SELECT m.id, m.file_type, m.file_size, m.file_mime, m.is_visible 
+                        // Obtener archivos (incluyendo file_data)
+                        $filesQuery = $pdo->prepare("SELECT m.id, m.file_type, m.file_size, m.file_mime, m.is_visible, m.file_data 
                                                      FROM media_files m WHERE m.title_id = ?");
                         $filesQuery->execute([$titleId]);
                         $files = $filesQuery->fetchAll(PDO::FETCH_ASSOC);
@@ -448,6 +448,7 @@ try {
                         ]);
                     }
                     break;
+                
                 
 
         default:
