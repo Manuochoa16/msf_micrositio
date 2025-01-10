@@ -157,6 +157,29 @@ try {
                 if (empty($data['title_id']) || empty($data['title'])) {
                     throw new Exception('El campo "title_id" y "title" son obligatorios.');
                 }
+                function updateTitle($title_id, $title = null, $is_visible = null) {
+                    global $pdo;
+                
+                    $fields = [];
+                    $values = [];
+                
+                    if (!is_null($title)) {
+                        $fields[] = "title = ?";
+                        $values[] = $title;
+                    }
+                
+                    if (!is_null($is_visible)) {
+                        $fields[] = "is_visible = ?";
+                        $values[] = $is_visible;
+                    }
+                
+                    if (!empty($fields)) {
+                        $values[] = $title_id;
+                        $query = "UPDATE titles SET " . implode(", ", $fields) . " WHERE id = ?";
+                        $stmt = $pdo->prepare($query);
+                        $stmt->execute($values);
+                    }
+                }
                 $updated = updateTitle($data['title_id'], $data['title']);
                 echo json_encode(['message' => $updated ? 'Título actualizado exitosamente.' : 'No se pudo actualizar el título.']);
             }
