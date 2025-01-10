@@ -164,13 +164,13 @@ try {
                     $values = [];
                 
                     if (!is_null($title)) {
-                        $fields[] = "title = ?";
+                        $fields[] = "title_text = ?"; // Cambiado a title_text
                         $values[] = $title;
                     }
                 
                     if (!is_null($is_visible)) {
                         $fields[] = "is_visible = ?";
-                        $values[] = $is_visible;
+                        $values[] = $is_visible === "true" ? 1 : 0; // Convertir a booleano si es necesario
                     }
                 
                     if (!empty($fields)) {
@@ -179,6 +179,8 @@ try {
                         $stmt = $pdo->prepare($query);
                         $stmt->execute($values);
                     }
+                
+                    return $stmt->rowCount() > 0;
                 }
                 $updated = updateTitle($data['title_id'], $data['title']);
                 echo json_encode(['message' => $updated ? 'Título actualizado exitosamente.' : 'No se pudo actualizar el título.']);
