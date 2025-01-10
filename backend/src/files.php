@@ -25,6 +25,7 @@ function addSubtitle($title_id, $subtitle) {
     global $pdo;
     $stmt = $pdo->prepare("INSERT INTO subtitles (title_id, subtitle_text, is_visible) VALUES (?, ?, ?)");
     $stmt->execute([$title_id, $subtitle, true]);
+    return $pdo->lastInsertId();
 }
 
 // Agregar descripción
