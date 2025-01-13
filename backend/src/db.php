@@ -6,7 +6,7 @@ error_reporting(E_ALL);
 require_once __DIR__ . '/../vendor/autoload.php';
 
 
-$dotenvPath = realpath(__DIR__ . '/../../'); 
+$dotenvPath = realpath(__DIR__ . '/../../../'); 
 if (!file_exists($dotenvPath . '/.env')) {
     die("El archivo .env no se encuentra en " . $dotenvPath . '/.env');
 }
