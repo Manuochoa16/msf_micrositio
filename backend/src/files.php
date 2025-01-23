@@ -48,7 +48,8 @@ function saveFileToDatabase($title_id, $type, $file) {
     }
 
     // Tamaño máximo permitido (Ejemplo: 10MB)
-    $maxSize = 10 * 1024 * 1024;
+    $maxSize = 50 * 1024 * 1024; // 50 MB
+
     if ($file['size'] > $maxSize) {
         throw new Exception('El archivo excede el tamaño máximo permitido.');
     }
@@ -111,7 +112,15 @@ function getInfoById($id) {
             // Archivos (imagenes, audios, videos)
             $stmt = $pdo->prepare("SELECT * FROM media_files WHERE title_id = ? AND is_visible = ?");
             $stmt->execute([$titleId, true]);
-            $title['media_files'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $files = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            // Convertir los archivos binarios a Base64
+            foreach ($files as &$file) {
+                $file['file_data'] = base64_encode($file['file_data']);  // Convertir binario a Base64
+            }
+
+            // Agregar los archivos al título
+            $title['media_files'] = $files;
         }
 
         return ['section' => $section, 'titles' => $titles];
@@ -119,6 +128,7 @@ function getInfoById($id) {
 
     return null;
 }
+
 // Modificar visibilidad de un título, subtítulo, descripción o archivo
 function updateVisibility($id, $type, $is_visible) {
     global $pdo;

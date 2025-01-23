@@ -128,7 +128,7 @@ try {
                     throw new Exception('El campo "section_id" y "name" son obligatorios.');
                 }
                 $updated = updateSection($data['section_id'], $data['name']);
-                echo json_encode(['message' => $updated ? 'Sección actualizada exitosamente.' : 'No se pudo actualizar la sección.']);
+                echo json_encode(['message' =>  'Sección actualizada exitosamente.']);
             }
             break;
 
@@ -312,7 +312,7 @@ try {
                     throw new Exception('El campo "title_id" y "audio" son obligatorios.');
                 }
                 $audioId = addAudio($data['title_id'], $_FILES['audio']);
-                echo json_encode(['message' => 'Audio agregado exitosamente.', 'audio_id' => $audioId]);
+                echo json_encode(['message' => 'Audio agregado exitosamente.']);
             }
             break;
 
@@ -336,7 +336,7 @@ try {
                     throw new Exception('El campo "title_id" y "image" son obligatorios.');
                 }
                 $imageId = addImage($data['title_id'], $_FILES['image']);
-                echo json_encode(['message' => 'Imagen agregada exitosamente.', 'image_id' => $imageId]);
+                echo json_encode(['message' => 'Imagen agregada exitosamente.']);
             }
             break;
 
@@ -372,7 +372,7 @@ try {
                     throw new Exception('El campo "title_id" y "video" son obligatorios.');
                 }
                 $videoId = addVideo($data['title_id'], $_FILES['video']);
-                echo json_encode(['message' => 'Video agregado exitosamente.', 'video_id' => $videoId]);
+                echo json_encode(['message' => 'Video agregado exitosamente.']);
             }
             break;
 
@@ -392,13 +392,29 @@ try {
         case 'deleteVideo':
             if ($method === 'DELETE') {
                 $data = json_decode(file_get_contents('php://input'), true);
+                
+                // Verifica que se haya pasado el ID del video
                 if (empty($data['video_id'])) {
                     throw new Exception('El campo "video_id" es obligatorio.');
                 }
+        
+                // Función para eliminar el video de la tabla media_files
+                function deleteVideo($video_id) {
+                    global $pdo;
+                
+                    // Elimina el video de la tabla media_files
+                    $stmt = $pdo->prepare("DELETE FROM media_files WHERE id = ? AND file_type = 'video'");
+                    return $stmt->execute([$video_id]);
+                }
+        
+                // Llama a la función deleteVideo y guarda el resultado
                 $deleted = deleteVideo($data['video_id']);
+                
+                // Responde con el mensaje correspondiente
                 echo json_encode(['message' => $deleted ? 'Video eliminado exitosamente.' : 'No se pudo eliminar el video.']);
             }
             break;
+        
             case 'updateVisibility':
                 if ($method === 'PUT') {
                     $data = json_decode(file_get_contents('php://input'), true);
@@ -420,37 +436,43 @@ try {
                 break;    
                 // Obtener subtítulos, descripciones y archivos de un título
                 case 'getTitleDetails':
-                    case 'getTitleDetails':
-                        if ($method === 'GET') {
-                            if (empty($_GET['title_id'])) {
-                                throw new Exception('El campo "title_id" es obligatorio.');
-                            }
-                    
-                            $titleId = $_GET['title_id'];
-                    
-                            // Obtener subtítulos
-                            $subtitlesQuery = $pdo->prepare("SELECT * FROM subtitles WHERE title_id = ?");
-                            $subtitlesQuery->execute([$titleId]);
-                            $subtitles = $subtitlesQuery->fetchAll(PDO::FETCH_ASSOC);
-                    
-                            // Obtener descripciones
-                            $descriptionsQuery = $pdo->prepare("SELECT * FROM paragraphs WHERE title_id = ?");
-                            $descriptionsQuery->execute([$titleId]);
-                            $descriptions = $descriptionsQuery->fetchAll(PDO::FETCH_ASSOC);
-                    
-                            // Obtener archivos (actualiza el nombre de la tabla y las columnas)
-                            $filesQuery = $pdo->prepare("SELECT m.id, m.file_type, m.file_size, m.file_mime, m.is_visible 
-                                                         FROM media_files m WHERE m.title_id = ?");
-                            $filesQuery->execute([$titleId]);
-                            $files = $filesQuery->fetchAll(PDO::FETCH_ASSOC);
-                    
-                            echo json_encode([
-                                'subtitles' => $subtitles,
-                                'descriptions' => $descriptions,
-                                'files' => $files
-                            ]);
+                    if ($method === 'GET') {
+                        if (empty($_GET['title_id'])) {
+                            throw new Exception('El campo "title_id" es obligatorio.');
                         }
-                        break;
+                
+                        $titleId = $_GET['title_id'];
+                
+                        // Obtener subtítulos
+                        $subtitlesQuery = $pdo->prepare("SELECT * FROM subtitles WHERE title_id = ?");
+                        $subtitlesQuery->execute([$titleId]);
+                        $subtitles = $subtitlesQuery->fetchAll(PDO::FETCH_ASSOC);
+                
+                        // Obtener descripciones
+                        $descriptionsQuery = $pdo->prepare("SELECT * FROM paragraphs WHERE title_id = ?");
+                        $descriptionsQuery->execute([$titleId]);
+                        $descriptions = $descriptionsQuery->fetchAll(PDO::FETCH_ASSOC);
+                
+                        // Obtener archivos
+                        $filesQuery = $pdo->prepare("SELECT m.id, m.file_type, m.file_size, m.file_mime, m.is_visible, m.file_data
+                                                     FROM media_files m WHERE m.title_id = ?");
+                        $filesQuery->execute([$titleId]);
+                        $files = $filesQuery->fetchAll(PDO::FETCH_ASSOC);
+                
+                        // Convertir los archivos binarios a Base64
+                        foreach ($files as &$file) {
+                            $file['file_data'] = base64_encode($file['file_data']);  // Convertir binario a Base64
+                        }
+                
+                        // Responder con los datos en formato JSON
+                        echo json_encode([
+                            'subtitles' => $subtitles,
+                            'descriptions' => $descriptions,
+                            'files' => $files
+                        ]);
+                    }
+                    break;
+                
           
 
         default:

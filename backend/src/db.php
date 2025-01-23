@@ -26,7 +26,7 @@ try {
     // Intentar conectar con la base de datos
     $pdo = new PDO("mysql:host=$host;port=$port;dbname=$dbname;charset=utf8", $username, $password);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    echo json_encode(['success' => true]);
+
 } catch (PDOException $e) {
     die(json_encode(['error' => 'Database connection failed', 'message' => $e->getMessage()]));
 }
